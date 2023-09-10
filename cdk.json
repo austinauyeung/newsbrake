@@ -1,5 +1,5 @@
 {
-  "app": "npx ts-node --prefer-ts-exts bin/newsbrake.ts",
+  "app": "node dist/bin/newsbrake.js",
   "watch": {
     "include": [
       "**"

@@ -2,7 +2,7 @@
   "name": "newsbrake",
   "version": "0.1.0",
   "bin": {
-    "newsbrake": "bin/newsbrake.js"
+    "newsbrake": "dist/bin/newsbrake.js"
   },
   "scripts": {
     "build": "tsc",
@@ -21,9 +21,6 @@
     "typescript": "~5.2.2"
   },
   "dependencies": {
-    "@aws-cdk/aws-apigatewayv2-alpha": "^2.94.0-alpha.0",
-    "@aws-cdk/aws-apigatewayv2-authorizers-alpha": "^2.94.0-alpha.0",
-    "@aws-cdk/aws-apigatewayv2-integrations-alpha": "^2.94.0-alpha.0",
     "aws-cdk-lib": "2.94.0",
     "aws-sdk": "^2.1450.0",
     "constructs": "^10.0.0",
