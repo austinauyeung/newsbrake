@@ -11,35 +11,59 @@ export class NewsbrakeStack extends Stack {
     super(scope, id, props);
 
     // DynamoDB table storing feed configurations
-    const table = new dynamodb.Table(this, 'FeedConfiguration', {
-      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+    const table = new dynamodb.Table(this, 'FeedPreferences', {
+      partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      // removalPolicy: cdk.RemovalPolicy.DESTROY,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    table.addGlobalSecondaryIndex({
+      indexName: 'GSI',
+      partitionKey: {
+        name: 'fetchTime',
+        type: dynamodb.AttributeType.NUMBER,
+      }
     });
 
     // Lambda functions and integrations
-    const lambdaGet = new lambda.Function(this, 'ddbGet', {
+    const ddbCreate = new lambda.Function(this, 'ddbCreate', {
       runtime: lambda.Runtime.NODEJS_16_X,
-      handler: 'get.handler',
-      code: lambda.Code.fromAsset('lambda/ddb'),
+      handler: 'ddbCreate.handler',
+      code: lambda.Code.fromAsset('dist/src'),
       environment: {
         TABLE_NAME: table.tableName,
       },
     });
 
-    const lambdaUpdate = new lambda.Function(this, 'ddbPut', {
+    const ddbGet = new lambda.Function(this, 'ddbGet', {
       runtime: lambda.Runtime.NODEJS_16_X,
-      handler: 'put.handler',
-      code: lambda.Code.fromAsset('lambda/ddb'),
+      handler: 'ddbGet.handler',
+      code: lambda.Code.fromAsset('dist/src'),
       environment: {
         TABLE_NAME: table.tableName,
       },
     });
 
-    table.grantReadData(lambdaGet)
-    table.grantReadWriteData(lambdaUpdate);
-    const integrationGet = new apigw.LambdaIntegration(lambdaGet)
-    const integrationUpdate = new apigw.LambdaIntegration(lambdaUpdate);
+    const ddbPut = new lambda.Function(this, 'ddbPut', {
+      runtime: lambda.Runtime.NODEJS_16_X,
+      handler: 'ddbPut.handler',
+      code: lambda.Code.fromAsset('dist/src'),
+      environment: {
+        TABLE_NAME: table.tableName,
+      },
+    });
+
+    table.grantWriteData(ddbCreate);
+    table.grantReadData(ddbGet);
+    table.grantWriteData(ddbPut);
+    const integrationGet = new apigw.LambdaIntegration(ddbGet);
+    const integrationUpdate = new apigw.LambdaIntegration(ddbPut);
+
+    const signupConfirm = new lambda.Function(this, 'signupConfirm', {
+      runtime: lambda.Runtime.NODEJS_16_X,
+      handler: 'signupConfirm.handler',
+      code: lambda.Code.fromAsset('dist/src'),
+    });
 
     // Cognito User Pool and Client
     const userPool = new cognito.UserPool(this, 'UserPool', {
@@ -50,6 +74,16 @@ export class NewsbrakeStack extends Stack {
       signInAliases: {
         email: true,
       },
+      lambdaTriggers: {
+        postConfirmation: ddbCreate,
+        customMessage: signupConfirm,
+      },
+      email: cognito.UserPoolEmail.withSES({
+        fromEmail: 'confirm@newsbrake.app',
+        fromName: 'newsbrake',
+        sesRegion: 'us-east-1'
+      }),
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
     const userPoolClient = userPool.addClient('UserPoolClient');
 
