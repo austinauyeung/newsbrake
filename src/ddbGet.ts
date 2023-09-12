@@ -17,7 +17,7 @@ exports.handler = async (event: APIGatewayProxyEvent) => {
             statusCode: 200,
             body: JSON.stringify(event),
         };
-    } catch (error) {
+    } catch (error: any) {
         return {
             statusCode: 500,
             headers: {
