@@ -1,9 +1,9 @@
 import { Route, Routes } from "react-router-dom";
-import Home from "./containers/Home.tsx";
-import NotFound from "./containers/NotFound.tsx";
-import Login from "./containers/Login.tsx";
-import Signup from "./containers/Signup.tsx";
-import Feeds from "./containers/Feeds.tsx"
+import Home from "./containers/Home";
+import NotFound from "./containers/NotFound";
+import Login from "./containers/Login";
+import Signup from "./containers/Signup";
+import Feeds from "./containers/Feeds"
 
 export default function Links() {
     return (
