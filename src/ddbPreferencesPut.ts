@@ -2,14 +2,14 @@ import { DynamoDB } from 'aws-sdk';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 const dynamo = new DynamoDB.DocumentClient();
-const tableName = process.env.TABLE_NAME || '';
+const tableNamePreferences = process.env.TABLENAME_PREFERENCES || '';
 
 exports.handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const data = JSON.parse(event.body || '{}');
     let responseMessage: string;
 
     const params: DynamoDB.DocumentClient.UpdateItemInput = {
-        TableName: tableName,
+        TableName: tableNamePreferences,
         Key: {
             'id': 'user1'
         },
