@@ -1,13 +1,17 @@
 import { DynamoDB } from 'aws-sdk';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { addCORSHeaders } from './lib/corsLib'
 
 const dynamo = new DynamoDB.DocumentClient();
-const tableNameMetadata = process.env.TABLENAME_METADATA || '';
+const tableName = process.env.TABLENAME || '';
 
 exports.handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const params = {
-        TableName: tableNameMetadata,
+        TableName: tableName,
     };
+
+    const origin = event.headers ? (event.headers.Origin || event.headers.origin) : undefined;
+    const corsHeaders = addCORSHeaders(origin, 'GET')
 
     try {
         const data = await dynamo.scan(params).promise();
@@ -15,12 +19,9 @@ exports.handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
             statusCode: 200,
             body: JSON.stringify({
                 data: data,
-                event: event
             }),
             headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "OPTIONS,GET",
-                "Access-Control-Allow-Credentials": "true",
+                ...corsHeaders,
             },
         };
     } catch (error: any) {
@@ -30,9 +31,7 @@ exports.handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
                 error: error
             }),
             headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "OPTIONS,GET",
-                "Access-Control-Allow-Credentials": "true",
+                ...corsHeaders,
             },
         };
     }

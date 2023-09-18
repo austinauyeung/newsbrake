@@ -2,29 +2,21 @@ import { DynamoDB } from 'aws-sdk';
 import { PostConfirmationTriggerEvent } from 'aws-lambda';
 
 const dynamo = new DynamoDB.DocumentClient();
-const tableNamePreferences = process.env.TABLENAME_PREFERENCES || '';
+const tableName = process.env.TABLENAME || '';
 
 exports.handler = async (event: PostConfirmationTriggerEvent) => {
     if (event.triggerSource === "PostConfirmation_ConfirmSignUp") {
         const userId = event.request.userAttributes.sub;
         const item = {
             userId: userId,
-            fetchTime: -1,
-            feeds: {
-                'Wikipedia': {
-                    'Current Events': 0,
-                },
-                'The Conversation': {
-                    'All Articles': 0,
-                },
-                'KFF Health News': {
-                    'Original Content': 0,
-                }
-            }
+            fetchTime: 6,
+            feedEnabled: 0,
+            kindleEmail: "",
+            feeds: {}
         };
 
         const params: DynamoDB.DocumentClient.PutItemInput = {
-            TableName: tableNamePreferences,
+            TableName: tableName,
             Item: item
         };
 

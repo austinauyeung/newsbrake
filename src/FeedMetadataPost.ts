@@ -1,16 +1,16 @@
 import { DynamoDB } from 'aws-sdk';
 
 const dynamo = new DynamoDB.DocumentClient();
-const tableNameMetadata = process.env.TABLENAME_METADATA || '';
+const tableName = process.env.TABLENAME || '';
 
 exports.handler = async () => {
     // current approach is to clear and rewrite table
     const scanResult = await dynamo.scan({
-        TableName: tableNameMetadata
+        TableName: tableName
     }).promise();
     const deletePromises = scanResult.Items ? scanResult.Items.map(item => {
         return dynamo.delete({
-            TableName: tableNameMetadata,
+            TableName: tableName,
             Key: {
                 feedName: item.feedName
             }
@@ -30,7 +30,11 @@ exports.handler = async () => {
             feedName: 'The Conversation',
             category: 'News',
             subfeeds: {
-                'All Articles': 'https://theconversation.com/articles.atom?language=en'
+                'All Articles - English': 'https://theconversation.com/articles.atom?language=en',
+                'All Articles - Spanish': 'https://theconversation.com/articles.atom?language=es',
+                'All Articles - French': 'https://theconversation.com/articles.atom?language=fr',
+                'All Articles - Indonesian': 'https://theconversation.com/articles.atom?language=id',
+                'All Articles - Portuguese': 'https://theconversation.com/articles.atom?language=pt'
             },
         },
         {
@@ -44,7 +48,7 @@ exports.handler = async () => {
 
     const putPromises = items.map(item => {
         return dynamo.put({
-            TableName: tableNameMetadata,
+            TableName: tableName,
             Item: item
         }).promise();
     })
