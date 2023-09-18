@@ -18,7 +18,7 @@ Amplify.configure({
   API: {
     endpoints: [
       {
-        name: "ddb",
+        name: "RestApi",
         endpoint: config.apiGateway.URL,
         region: config.apiGateway.REGION,
       },

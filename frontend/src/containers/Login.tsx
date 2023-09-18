@@ -1,19 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Form from "react-bootstrap/Form";
 import Stack from "react-bootstrap/Stack";
 import { Auth } from "aws-amplify";
 import { useAppContext } from "../lib/contextLib";
 import { useNavigate } from "react-router-dom";
 import LoaderButton from "../components/LoaderButton";
-import { onError } from "../lib/errorLib";
-import { InputGroup } from "react-bootstrap";
 import { useFormFields } from "../lib/hooksLib";
 import { toast } from "react-toastify";
 import "./Login.css";
 
 export default function Login() {
-    const { userHasAuthenticated } = useAppContext();
-
+    const { userHasAuthenticated, isAuthenticated } = useAppContext();
     const [fields, handleFieldChange] = useFormFields({
         email: "",
         password: "",
@@ -21,7 +18,12 @@ export default function Login() {
 
     const [isLoading, setIsLoading] = useState(false);
     const nav = useNavigate();
-    const suffix = "@gmail.com";
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            nav("/");
+        }
+    }, [])
 
     function validateForm() {
         return fields.email.length > 0 && fields.password.length > 0;
@@ -32,12 +34,12 @@ export default function Login() {
         setIsLoading(true);
 
         try {
-            await Auth.signIn(`${fields.email}${suffix}`, fields.password);
+            await Auth.signIn(fields.email, fields.password);
             userHasAuthenticated(true);
-            nav("/feeds");
-            toast("Login successful.", { toastId: "login" })
-        } catch (error) {
-            onError(error);
+            nav("/");
+            // toast("Login successful.", { toastId: "login" })
+        } catch (error: any) {
+            toast.error(error.message);
         }
         setIsLoading(false);
     }
@@ -47,34 +49,17 @@ export default function Login() {
             <h1>Welcome back.</h1>
             <Form onSubmit={handleSubmit} noValidate>
                 <Stack gap={1}>
-                    {/* <Form.Label htmlFor="email">Kindle e-mail</Form.Label> */}
-                    <InputGroup>
+                    <Form.Group controlId="email">
+                        {/* <Form.Label>E-mail</Form.Label> */}
                         <Form.Control
-                            id="email"
-                            autoComplete="on"
                             autoFocus
                             size="lg"
                             type="email"
                             value={fields.email}
                             onChange={handleFieldChange}
-                            placeholder="Kindle e-mail"
-                        />
-                        <InputGroup.Text id="domain">
-                            {suffix}
-                        </InputGroup.Text>
-                    </InputGroup>
-
-                    {/* <Form.Group controlId="email">
-                        <Form.Label>Kindle e-mail</Form.Label>
-                        <Form.Control
-                            autoFocus
-                            size="lg"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
                             placeholder="E-mail"
                         />
-                    </Form.Group> */}
+                    </Form.Group>
 
                     <Form.Group controlId="password">
                         {/* <Form.Label>Password</Form.Label> */}
@@ -86,7 +71,13 @@ export default function Login() {
                             placeholder="Password"
                         />
                     </Form.Group>
-                    <LoaderButton size="lg" type="submit" isLoading={isLoading} disabled={!validateForm()}>
+                    <LoaderButton
+                        size="lg"
+                        type="submit"
+                        variant="dark"
+                        isLoading={isLoading}
+                        disabled={!validateForm()}
+                    >
                         {!isLoading && "Login"}
                     </LoaderButton>
                 </Stack>

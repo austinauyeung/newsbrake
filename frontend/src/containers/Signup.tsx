@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Form from "react-bootstrap/Form";
 import Stack from "react-bootstrap/Stack";
 import { useNavigate } from "react-router-dom";
@@ -6,7 +6,6 @@ import { useFormFields } from "../lib/hooksLib";
 import { useAppContext } from "../lib/contextLib";
 import LoaderButton from "../components/LoaderButton";
 import { Auth } from "aws-amplify";
-import { onError } from "../lib/errorLib";
 import { ISignUpResult } from "amazon-cognito-identity-js";
 import { toast } from "react-toastify";
 import "./Signup.css";
@@ -20,10 +19,15 @@ export default function Signup() {
     });
 
     const nav = useNavigate();
-    const { userHasAuthenticated } = useAppContext();
+    const { userHasAuthenticated, isAuthenticated } = useAppContext();
     const [isLoading, setIsLoading] = useState(false);
     const [newUser, setNewUser] = useState<null | ISignUpResult | string>(null);
 
+    useEffect(() => {
+        if (isAuthenticated) {
+            nav("/");
+        }
+    }, [])
 
     function validateForm() {
         return (
@@ -46,17 +50,17 @@ export default function Signup() {
                 password: fields.password,
             });
             setNewUser(newUser);
-        } catch (e: any) {
-            console.log(e.code);
-            if (e.code === "UsernameExistsException") {
+        } catch (error: any) {
+            console.log(error);
+            if (error.code === "UsernameExistsException") {
 
                 try {
                     toast.info("Confirmation resent. You may have to reset your password.")
                     const resend = await Auth.resendSignUp(fields.email);
                     console.log(resend);
                     setNewUser(fields.email);
-                } catch (e2: any) {
-                    if (e2.code === "InvalidParameterException") {
+                } catch (error2: any) {
+                    if (error2.code === "InvalidParameterException") {
                         toast.error("User already exists.")
                     }
                 }
@@ -74,9 +78,9 @@ export default function Signup() {
             await Auth.confirmSignUp(fields.email, fields.confirmationCode);
             await Auth.signIn(fields.email, fields.password);
             userHasAuthenticated(true);
-            nav("/feeds");
-        } catch (e) {
-            onError(e);
+            nav("/");
+        } catch (error: any) {
+            toast.error("Confirmation error.");
         }
         setIsLoading(false);
     }
@@ -99,11 +103,11 @@ export default function Signup() {
                     <LoaderButton
                         size="lg"
                         type="submit"
-                        variant="success"
+                        variant="dark"
                         isLoading={isLoading}
                         disabled={!validateConfirmationForm()}
                     >
-                        Verify
+                        {!isLoading && "Verify"}
                     </LoaderButton>
                 </Stack>
             </Form>
@@ -112,47 +116,53 @@ export default function Signup() {
 
     function renderForm() {
         return (
-            <Form onSubmit={handleSubmit}>
-                <Stack gap={1}>
-                    <Form.Group controlId="email">
-                        <Form.Label>Email</Form.Label>
-                        <Form.Control
+            <>
+                <h1>Welcome.</h1>
+                <Form onSubmit={handleSubmit}>
+                    <Stack gap={1}>
+                        <Form.Group controlId="email">
+                            {/* <Form.Label>Email</Form.Label> */}
+                            <Form.Control
+                                size="lg"
+                                autoFocus
+                                type="email"
+                                value={fields.email}
+                                onChange={handleFieldChange}
+                                placeholder="E-mail"
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="password">
+                            {/* <Form.Label>Password</Form.Label> */}
+                            <Form.Control
+                                size="lg"
+                                type="password"
+                                value={fields.password}
+                                onChange={handleFieldChange}
+                                placeholder="Password"
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="confirmPassword">
+                            {/* <Form.Label>Confirm Password</Form.Label> */}
+                            <Form.Control
+                                size="lg"
+                                type="password"
+                                value={fields.confirmPassword}
+                                onChange={handleFieldChange}
+                                placeholder="Confirm Password"
+                            />
+                        </Form.Group>
+                        <LoaderButton
                             size="lg"
-                            autoFocus
-                            type="email"
-                            value={fields.email}
-                            onChange={handleFieldChange}
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="password">
-                        <Form.Label>Password</Form.Label>
-                        <Form.Control
-                            size="lg"
-                            type="password"
-                            value={fields.password}
-                            onChange={handleFieldChange}
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="confirmPassword">
-                        <Form.Label>Confirm Password</Form.Label>
-                        <Form.Control
-                            size="lg"
-                            type="password"
-                            value={fields.confirmPassword}
-                            onChange={handleFieldChange}
-                        />
-                    </Form.Group>
-                    <LoaderButton
-                        size="lg"
-                        type="submit"
-                        variant="success"
-                        isLoading={isLoading}
-                        disabled={!validateForm()}
-                    >
-                        {!isLoading && "Signup"}
-                    </LoaderButton>
-                </Stack>
-            </Form>
+                            type="submit"
+                            variant="dark"
+                            isLoading={isLoading}
+                            disabled={!validateForm()}
+                        >
+                            {!isLoading && "Signup"}
+                        </LoaderButton>
+                    </Stack>
+                </Form>
+            </>
         );
     }
 
