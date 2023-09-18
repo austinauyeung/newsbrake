@@ -2,80 +2,15 @@ import "./Home.css";
 import { useAppContext } from "../lib/contextLib";
 import { useEffect, useState } from "react";
 import { API } from "aws-amplify";
-import { Accordion, Form, Button } from "react-bootstrap";
+import { Accordion, Form } from "react-bootstrap";
 import * as AWS from 'aws-sdk';
 import { toast } from "react-toastify";
 import LoaderButton from "../components/LoaderButton";
+import { Feed, Preferences } from "../lib/types";
 
 export default function Home() {
-    interface Feed {
-        feedName: string;
-        category: string;
-        subfeeds: Record<string, string>;
-    }
-
-    interface SubfeedPreferences {
-        [subfeedName: string]: number;
-    }
-
-    interface Preferences {
-        feedEnabled: number,
-        feeds: {
-            [feedName: string]: SubfeedPreferences
-        },
-        fetchTime: number,
-        kindleEmail: string,
-    }
-
-    const { isAuthenticated } = useAppContext();
-    const [metadata, setMetadata] = useState<Feed[]>([]);
-    const [preferences, setPreferences] = useState<Preferences>({
-        feedEnabled: 0,
-        feeds: {},
-        fetchTime: 6,
-        kindleEmail: ''
-    });
+    const { isAuthenticated, metadata, preferences, setPreferences } = useAppContext();
     const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-        async function onLoad() {
-            if (!isAuthenticated) {
-                return;
-            }
-
-            try {
-                const [metadataResponse, preferencesResponse] = await Promise.all([
-                    API.get("RestApi", "metadata", {}),
-                    API.get("RestApi", "preferences", {})
-                ]);
-                const fetchedMetadata = metadataResponse.data.Items;
-                const fetchedPreferences = AWS.DynamoDB.Converter.unmarshall(preferencesResponse.data.Item);
-                const updatedFeeds = { ...fetchedPreferences.feeds };
-
-                fetchedMetadata.forEach((feed: Feed) => {
-                    if (!(feed.feedName in updatedFeeds)) {
-                        updatedFeeds[feed.feedName] = {}
-                    }
-                    Object.keys(feed.subfeeds).forEach(subfeed => {
-                        if (!(subfeed in updatedFeeds[feed.feedName])) {
-                            updatedFeeds[feed.feedName][subfeed] = 0
-                        }
-                    })
-                });
-
-                const updatedPreferences = {
-                    ...fetchedPreferences,
-                    feeds: updatedFeeds
-                } as Preferences;
-                console.log(updatedPreferences)
-                setMetadata(fetchedMetadata);
-                setPreferences(updatedPreferences);
-            } catch (error) {
-                console.log(error);
-            }
-        }
-        onLoad();
-    }, [])
 
     const categories = metadata.reduce((acc, feed) => {
         if (!acc[feed.category]) {
@@ -123,6 +58,7 @@ export default function Home() {
             console.log(error);
         }
         setIsLoading(false);
+        localStorage.setItem('preferences', JSON.stringify(preferences));
     }
 
     function renderLander() {
@@ -157,7 +93,7 @@ export default function Home() {
         return (
             <div className="Feeds">
                 <h1>Feed Preferences</h1>
-                {Object.keys(preferences.feeds).length > 1 && (
+                {Object.keys(preferences).length > 0 && (
                     <Form onSubmit={(event) => updateData(event, preferences)}>
                         <Accordion alwaysOpen>
                             {Object.entries(categories).map(([category, feeds], index) => (
@@ -196,7 +132,6 @@ export default function Home() {
                         >
                             {!isLoading && "Save"}
                         </LoaderButton>
-                        {/* <Button className="mt-3 float-end" as="input" type="submit" value="Save" variant="dark" onClick={() => updateData(preferences)} />{' '} */}
                     </Form>
                 )}
             </div>
