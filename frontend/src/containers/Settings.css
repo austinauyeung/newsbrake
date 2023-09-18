@@ -1,0 +1,16 @@
+.Settings {
+    padding: 50px 0;
+}
+
+.Settings h2 {
+    margin-bottom: 0rem;
+    font-size: 1.2rem;
+}
+
+.Settings h3 {
+    font-size: 2rem;
+}
+
+.SettingsElement {
+    margin-bottom: 2rem;
+}
