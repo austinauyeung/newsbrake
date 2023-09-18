@@ -8,7 +8,8 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "deploy": "pnpm run build && copy src\\package.json dist\\src\\ && pnpm install --prefix dist\\src\\ --prod && cdk deploy && powershell -File .\\react-config.ps1"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.119",
