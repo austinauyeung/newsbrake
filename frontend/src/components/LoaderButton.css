@@ -1,14 +1,9 @@
 .LoaderButton {
     margin-top: 12px;
-}
-
-.btn {
-    /* border-radius: 0px; */
+    /* border-radius: 0; */
 }
 
 .LoaderButton .spinning {
-    margin-right: 7px;
-    top: 2px;
     animation: spin 2s infinite linear;
 }
 
