@@ -1,6 +1,5 @@
-import Navbar from "react-bootstrap/Navbar";
 import Routes from "./Routes";
-import Nav from "react-bootstrap/Nav"
+import { Navbar, Nav, Offcanvas } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import { useEffect, useState } from "react";
 import { AppContext, AppContextType } from "./lib/contextLib";
@@ -39,41 +38,63 @@ function App() {
     nav("/login");
   }
 
+  function navComponent() {
+    return (
+      <Nav className="ms-auto" activeKey={window.location.pathname}>
+        {isAuthenticated ? (
+          <>
+            <LinkContainer to="/">
+              <Nav.Link>Feeds</Nav.Link>
+            </LinkContainer>
+            <LinkContainer to="/settings">
+              <Nav.Link>Settings</Nav.Link>
+            </LinkContainer>
+            <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
+          </>
+        ) : (
+          <>
+            <LinkContainer to="/signup">
+              <Nav.Link>Signup</Nav.Link>
+            </LinkContainer>
+            <LinkContainer to="/login">
+              <Nav.Link>Login</Nav.Link>
+            </LinkContainer>
+          </>
+        )}
+      </Nav>
+    )
+  }
+
   return (
     !isAuthenticating && (
       <div className={`App container py-3 ${containerClass}`}>
-        <Navbar collapseOnSelect bg="none" expand="md" className="mb-0 px-0">
+        <Navbar bg="none" className="mb-0 px-0 d-none d-md-flex">
+          <LinkContainer to="/">
+            <Navbar.Brand className="fw-bold NavbarBrand">
+              <img src="/logo.svg" height="60" className="d-inline-block align-top" />
+            </Navbar.Brand>
+          </LinkContainer>
+          {navComponent()}
+        </Navbar >
+
+        <Navbar bg="none" expand={false} className="mb-0 px-0 d-md-none">
           <LinkContainer to="/">
             <Navbar.Brand className="fw-bold NavbarBrand">
               <img src="/logo.svg" height="60" className="d-inline-block align-top" />
             </Navbar.Brand>
           </LinkContainer>
           <Navbar.Toggle />
-          <Navbar.Collapse className="justify-content-end">
-            <Nav activeKey={window.location.pathname}>
-              {isAuthenticated ? (
-                <>
-                  <LinkContainer to="/">
-                    <Nav.Link>Feeds</Nav.Link>
-                  </LinkContainer>
-                  <LinkContainer to="/settings">
-                    <Nav.Link>Settings</Nav.Link>
-                  </LinkContainer>
-                  <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
-                </>
-              ) : (
-                <>
-                  <LinkContainer to="/signup">
-                    <Nav.Link>Signup</Nav.Link>
-                  </LinkContainer>
-                  <LinkContainer to="/login">
-                    <Nav.Link>Login</Nav.Link>
-                  </LinkContainer>
-                </>
-              )}
-            </Nav>
-          </Navbar.Collapse >
-        </Navbar >
+          <Navbar.Offcanvas id="navbarOffcanvas" placement="end">
+            <Offcanvas.Header closeButton>
+              <Offcanvas.Title id='offcanvasLabel'>
+                Menu
+              </Offcanvas.Title>
+            </Offcanvas.Header>
+            <Offcanvas.Body>
+              {navComponent()}
+            </Offcanvas.Body>
+          </Navbar.Offcanvas>
+        </Navbar>
 
         <div className="center-container">
           <AppContext.Provider value={{ isAuthenticated, userHasAuthenticated } as AppContextType}>
