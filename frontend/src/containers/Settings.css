@@ -1,16 +1,31 @@
 .Settings {
     padding: 50px 0;
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
 }
 
 .Settings h2 {
     margin-bottom: 0rem;
-    font-size: 1.2rem;
+    font-size: 1rem;
 }
 
 .Settings h3 {
-    font-size: 2rem;
+    font-size: 1.6rem;
 }
 
-.SettingsElement {
-    margin-bottom: 2rem;
+.FeedEnabled {
+    font-size: 1.2rem;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+.input-group {
+    max-width: 500px;
+}
+
+select option::selection {
+    background-color: red !important;
+    color: red !important;
 }

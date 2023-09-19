@@ -22,7 +22,8 @@
     width: 100%;
 }
 
-.Feeds .LoaderButton {
+.Feeds .LoaderButton,
+.Settings .LoaderButton {
     width: 4rem;
 }
 

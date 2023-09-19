@@ -42,15 +42,18 @@
 
 .center-container {
   display: flex;
+  justify-content: center;
 }
 
 /* Login/Signup forms */
-.form-control {
+.form-control,
+.form-select {
   border-radius: 0;
 }
 
 .form-control:focus,
-.form-check-input:focus {
+.form-check-input:focus,
+.form-select:focus {
   border-color: black;
   box-shadow: 0 0 0 0.1rem rgba(0, 0, 0, 0.6);
   /* b  ox-shadow: none; */
@@ -143,7 +146,8 @@ p {
   border-radius: 0 !important;
 }
 
-.accordion-button:focus {
+.accordion-button:focus,
+.form-select:focus {
   box-shadow: none;
 }
 
