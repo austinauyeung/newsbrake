@@ -1,15 +1,14 @@
 import "./Home.css";
 import { useAppContext } from "../lib/contextLib";
 import { useEffect, useState } from "react";
-import { API } from "aws-amplify";
 import { Accordion, Form } from "react-bootstrap";
-import * as AWS from 'aws-sdk';
-import { toast } from "react-toastify";
 import LoaderButton from "../components/LoaderButton";
-import { Feed, Preferences } from "../lib/types";
+import updateData from "../lib/putPreferences"
+import { handlePrefChange } from "../lib/hooksLib";
 
 export default function Home() {
     const { isAuthenticated, metadata, preferences, setPreferences } = useAppContext();
+    const [tempPreferences, setTempPreferences] = useState(preferences);
     const [isLoading, setIsLoading] = useState(false);
 
     const categories = metadata.reduce((acc, feed) => {
@@ -23,43 +22,11 @@ export default function Home() {
         return acc;
     }, {} as Record<string, { feedName: string, subfeeds: Record<string, string> }[]>)
 
-    function handleCheckboxChange(feedName: string, subfeed: string) {
-        setPreferences(prevPreferences => {
-            const updatedFeeds = { ...prevPreferences.feeds[feedName] }
-            for (const key in updatedFeeds) {
-                updatedFeeds[key] = 0
-            }
-            updatedFeeds[subfeed] = prevPreferences.feeds[feedName][subfeed] === 1 ? 0 : 1;
-
-            const newPreferences = {
-                ...prevPreferences,
-                feeds: {
-                    ...prevPreferences.feeds,
-                    [feedName]: updatedFeeds
-                }
-            }
-            console.log(newPreferences)
-            return newPreferences;
-        });
-    }
-
-    async function updateData(event: React.FormEvent<HTMLFormElement>, preferences: Preferences) {
-        event.preventDefault();
-        setIsLoading(true);
-
-        try {
-            console.log(preferences)
-            const response = await API.put("RestApi", "preferences", {
-                body: preferences
-            })
-            console.log(response);
-            toast("Preferences saved.", { toastId: "saved" })
-        } catch (error) {
-            console.log(error);
-        }
-        setIsLoading(false);
-        localStorage.setItem('preferences', JSON.stringify(preferences));
-    }
+    useEffect(() => {
+        console.log(preferences)
+        console.log(tempPreferences)
+        setTempPreferences(preferences)
+    }, [preferences])
 
     function renderLander() {
         return (
@@ -93,46 +60,48 @@ export default function Home() {
         return (
             <div className="Feeds">
                 <h1>Feed Preferences</h1>
-                {Object.keys(preferences).length > 0 && (
-                    <Form onSubmit={(event) => updateData(event, preferences)}>
-                        <Accordion alwaysOpen>
-                            {Object.entries(categories).map(([category, feeds], index) => (
-                                <Accordion.Item key={category} eventKey={index.toString()}>
-                                    <Accordion.Header>{category}</Accordion.Header>
-                                    <Accordion.Body>
-                                        {feeds.map(feed => {
-                                            const { feedName } = feed;
-                                            return (
-                                                <div key={feedName} className="AccordionFeed">
-                                                    {feedName}
-                                                    {Object.keys(feed.subfeeds).map(subfeed => (
-                                                        <Form.Check
-                                                            className=".custom-border-radius"
-                                                            type='checkbox'
-                                                            id={subfeed}
-                                                            label={subfeed}
-                                                            key={subfeed}
-                                                            checked={preferences.feeds[feed.feedName][subfeed] === 1}
-                                                            onChange={() => handleCheckboxChange(feed.feedName, subfeed)}
-                                                        />
-                                                    ))}
-                                                </div>
-                                            )
-                                        })}
-                                    </Accordion.Body>
-                                </Accordion.Item>
-                            ))}
-                        </Accordion>
-                        <LoaderButton
-                            // size="lg"
-                            type="submit"
-                            variant="dark"
-                            isLoading={isLoading}
-                            className="mt-3 float-end"
-                        >
-                            {!isLoading && "Save"}
-                        </LoaderButton>
-                    </Form>
+                {Object.keys(tempPreferences).length > 0 && (
+                    !preferences.feedEnabled ? <p>To view your preferences, please enable your feed in settings.</p>
+                        :
+                        <Form onSubmit={(event) => updateData(event, tempPreferences, setPreferences, setIsLoading)}>
+                            <Accordion alwaysOpen>
+                                {Object.entries(categories).map(([category, feeds], index) => (
+                                    <Accordion.Item key={category} eventKey={index.toString()}>
+                                        <Accordion.Header>{category}</Accordion.Header>
+                                        <Accordion.Body>
+                                            {feeds.map(feed => {
+                                                const { feedName } = feed;
+                                                return (
+                                                    <div key={feedName} className="AccordionFeed">
+                                                        {feedName}
+                                                        {Object.keys(feed.subfeeds).map(subfeed => (
+                                                            <Form.Check
+                                                                className=".custom-border-radius"
+                                                                type='checkbox'
+                                                                id={subfeed}
+                                                                label={subfeed}
+                                                                key={subfeed}
+                                                                checked={tempPreferences.feeds[feed.feedName][subfeed] === 1}
+                                                                onChange={(event) => handlePrefChange(event, setTempPreferences, feed.feedName, subfeed)}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                )
+                                            })}
+                                        </Accordion.Body>
+                                    </Accordion.Item>
+                                ))}
+                            </Accordion>
+                            <LoaderButton
+                                // size="lg"
+                                type="submit"
+                                variant="dark"
+                                isLoading={isLoading}
+                                className="mt-3 ms-auto"
+                            >
+                                {!isLoading && "Save"}
+                            </LoaderButton>
+                        </Form>
                 )}
             </div>
         )
