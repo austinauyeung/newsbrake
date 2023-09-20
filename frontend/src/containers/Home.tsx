@@ -60,50 +60,53 @@ export default function Home() {
         return (
             <MotionDiv variant="fadeIn" delay={0.1} className="Feeds">
                 <h1>Feed Preferences</h1>
-                {Object.keys(tempPreferences).length > 0 && (
-                    !preferences.feedEnabled ? <p>To view your preferences, please enable your feed in settings.</p>
-                        :
-                        <Form onSubmit={(event) => putData(event, tempPreferences, setPreferences, setIsLoading)}>
-                            <Accordion alwaysOpen>
-                                {Object.entries(categories).map(([category, feeds], index) => (
-                                    <Accordion.Item key={category} eventKey={index.toString()}>
-                                        <Accordion.Header>{category}</Accordion.Header>
-                                        <Accordion.Body>
-                                            {feeds.map(feed => {
-                                                const { feedName } = feed;
-                                                return (
-                                                    <div key={feedName} className="AccordionFeed">
-                                                        {feed?.logo ? <a href={feed.url} target="_blank" rel="noopener noreferrer"><img src={feed.logo} className={
-                                                            `${feedName === 'KFF Health News' ? 'logo1' : 'logo2'}`} /></a>
-                                                            : feedName}
-                                                        {Object.keys(feed.subfeeds).map(subfeed => (
-                                                            <Form.Check
-                                                                type='checkbox'
-                                                                id={subfeed}
-                                                                label={subfeed}
-                                                                key={subfeed}
-                                                                checked={tempPreferences.feeds[feed.feedName][subfeed] === 1}
-                                                                onChange={(event) => handlePrefChange(event, setTempPreferences, feed.feedName, subfeed)}
-                                                            />
-                                                        ))}
-                                                    </div>
-                                                )
-                                            })}
-                                        </Accordion.Body>
-                                    </Accordion.Item>
-                                ))}
-                            </Accordion>
-                            <LoaderButton
-                                // size="lg"
-                                type="submit"
-                                variant="dark"
-                                isLoading={isLoading}
-                                className="mt-3 ms-auto"
-                            >
-                                {!isLoading && "Save"}
-                            </LoaderButton>
-                        </Form>
-                )}
+                {Object.keys(tempPreferences).length > 0 &&
+                    <MotionDiv variant="fadeIn" delay={0.5}>
+                        {
+                            !preferences.feedEnabled ? <p>To view your preferences, please enable your feed in settings.</p>
+                                :
+                                <Form onSubmit={(event) => putData(event, tempPreferences, setPreferences, setIsLoading)}>
+                                    <Accordion alwaysOpen>
+                                        {Object.entries(categories).map(([category, feeds], index) => (
+                                            <Accordion.Item key={category} eventKey={index.toString()}>
+                                                <Accordion.Header>{category}</Accordion.Header>
+                                                <Accordion.Body>
+                                                    {feeds.map(feed => {
+                                                        const { feedName } = feed;
+                                                        return (
+                                                            <div key={feedName} className="AccordionFeed">
+                                                                {feed?.logo ? <a href={feed.url} target="_blank" rel="noopener noreferrer"><img src={feed.logo} className={
+                                                                    `${feedName === 'KFF Health News' ? 'logo1' : 'logo2'}`} /></a>
+                                                                    : feedName}
+                                                                {Object.keys(feed.subfeeds).map(subfeed => (
+                                                                    <Form.Check
+                                                                        type='checkbox'
+                                                                        id={subfeed}
+                                                                        label={subfeed}
+                                                                        key={subfeed}
+                                                                        checked={tempPreferences.feeds[feed.feedName][subfeed] === 1}
+                                                                        onChange={(event) => handlePrefChange(event, setTempPreferences, feed.feedName, subfeed)}
+                                                                    />
+                                                                ))}
+                                                            </div>
+                                                        )
+                                                    })}
+                                                </Accordion.Body>
+                                            </Accordion.Item>
+                                        ))}
+                                    </Accordion>
+                                    <LoaderButton
+                                        // size="lg"
+                                        type="submit"
+                                        variant="dark"
+                                        isLoading={isLoading}
+                                        className="mt-3 ms-auto"
+                                    >
+                                        {!isLoading && "Save"}
+                                    </LoaderButton>
+                                </Form>
+                        }
+                    </MotionDiv>}
             </MotionDiv>
         )
     }
