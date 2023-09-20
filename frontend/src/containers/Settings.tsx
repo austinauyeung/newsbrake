@@ -33,7 +33,7 @@ export default function Settings() {
 
     return (
         <div className="Settings">
-            <div className="mb-3">
+            <div className="mb-4">
                 <h2>Signed in as</h2>
                 <h3>{email}</h3>
             </div>
@@ -45,11 +45,11 @@ export default function Settings() {
                     checked={Boolean(tempPreferences.feedEnabled)}
                     label={`${tempPreferences.feedEnabled ? "Enabled" : "Disabled"}`}
                     onChange={(event) => handlePrefChange(event, setTempPreferences)}
-                    className="mb-3 FeedEnabled"
+                    className="mb-4 FeedEnabled"
                 />
 
                 <h2>Your Kindle E-mail</h2>
-                <InputGroup className="mb-3">
+                <InputGroup className="mb-4">
                     <Form.Control
                         size="lg"
                         type="email"
@@ -61,7 +61,7 @@ export default function Settings() {
                 </InputGroup>
 
                 <h2>Delivery Time (EST)</h2>
-                <Form.Select className="select-wrapper" id="fetchTime" value={tempPreferences.fetchTime} onChange={(event) => handlePrefChange(event, setTempPreferences)}>
+                <Form.Select className="mb-4" id="fetchTime" value={tempPreferences.fetchTime} onChange={(event) => handlePrefChange(event, setTempPreferences)}>
                     {[...Array(24).keys()].map(hour => {
                         return (
                             <option key={`${hour}`} className="dropdown" value={hour}>
@@ -78,7 +78,7 @@ export default function Settings() {
                     type="submit"
                     variant="dark"
                     isLoading={isLoading}
-                    className="mt-3 mb-5 ms-auto"
+                    className="mb-5 ms-auto"
                 >
                     {!isLoading && "Save"}
                 </LoaderButton>
