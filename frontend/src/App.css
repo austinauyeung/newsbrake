@@ -9,12 +9,13 @@
 
 .nav-link {
   position: relative;
+  align-self: flex-start;
 }
 
 .nav-link::before {
   content: "";
   position: absolute;
-  bottom: 2px;
+  bottom: 4px;
   left: 0;
   width: 0;
   height: 2px;
@@ -81,6 +82,19 @@
     margin-bottom: 0;
     /* font-family: 'Libre Baskerville'; */
   }
+
+  .Footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+  }
+
+  .FooterLink {
+    color: black;
+    margin-bottom: 0.5rem;
+    text-decoration: none;
+    margin-bottom: 1rem;
+  }
 }
 
 @media all and (min-width: 800px) {
@@ -105,6 +119,15 @@
   .Login h1 {
     margin-bottom: 0;
     margin-right: 5rem;
+  }
+
+  .Footer {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .FooterLink {
+    margin: 0 0.5rem 0.5rem 1rem;
   }
 }
 
@@ -163,4 +186,17 @@ p {
 
 .accordion-button::after {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000000'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>") !important;
+}
+
+/* .offcanvas-body .nav-link {
+  max-width: 60px;
+} */
+
+.offcanvas-title {
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-size: 2rem;
+}
+
+.offcanvas {
+  max-width: 200px;
 }

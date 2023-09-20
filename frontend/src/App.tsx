@@ -1,7 +1,7 @@
 import Routes from "./Routes";
 import { Navbar, Nav, Offcanvas } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AppContext, AppContextType } from "./lib/contextLib";
 import { API, Auth } from "aws-amplify";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -19,6 +19,9 @@ function App() {
   const loc = useLocation();
   const routesToSpace = ['/login', '/signup']
   const containerClass = routesToSpace.includes(loc.pathname) ? 'container-space' : 'container-default';
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
 
   const [metadata, setMetadata] = useState<Feed[]>(() => {
     const storedMetadata = localStorage.getItem('metadata');
@@ -92,6 +95,7 @@ function App() {
   }
 
   async function handleLogout() {
+    handleClose();
     await Auth.signOut();
     userHasAuthenticated(false);
     nav("/login");
@@ -107,20 +111,20 @@ function App() {
         {isAuthenticated ? (
           <>
             <LinkContainer to="/">
-              <Nav.Link>Feeds</Nav.Link>
+              <Nav.Link onClick={handleClose}>Feeds</Nav.Link>
             </LinkContainer>
             <LinkContainer to="/settings">
-              <Nav.Link>Settings</Nav.Link>
+              <Nav.Link onClick={handleClose}>Settings</Nav.Link>
             </LinkContainer>
             <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
           </>
         ) : (
           <>
             <LinkContainer to="/signup">
-              <Nav.Link>Signup</Nav.Link>
+              <Nav.Link onClick={handleClose}>Signup</Nav.Link>
             </LinkContainer>
             <LinkContainer to="/login">
-              <Nav.Link>Login</Nav.Link>
+              <Nav.Link onClick={handleClose}>Login</Nav.Link>
             </LinkContainer>
           </>
         )}
@@ -146,13 +150,8 @@ function App() {
               <img src="/logo.svg" height="60" className="d-inline-block align-top" />
             </Navbar.Brand>
           </LinkContainer>
-          <Navbar.Toggle />
-          <Navbar.Offcanvas id="navbarOffcanvas" placement="end">
-            <Offcanvas.Header closeButton>
-              <Offcanvas.Title id='offcanvasLabel'>
-                Menu
-              </Offcanvas.Title>
-            </Offcanvas.Header>
+          <Navbar.Toggle onClick={handleShow} />
+          <Navbar.Offcanvas id="navbarOffcanvas" placement="end" show={show} onHide={handleClose}>
             <Offcanvas.Body>
               {navComponent()}
             </Offcanvas.Body>
