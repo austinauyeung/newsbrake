@@ -37,6 +37,7 @@ export class NewsbrakeStack extends Stack {
       environment: {
         TABLENAME: UserPreferences.tableName,
       },
+      timeout: cdk.Duration.seconds(10),
     });
 
     const UserPreferencesGet = new lambda.Function(this, 'UserPreferencesGet', {
@@ -46,6 +47,7 @@ export class NewsbrakeStack extends Stack {
       environment: {
         TABLENAME: UserPreferences.tableName,
       },
+      timeout: cdk.Duration.seconds(10),
     });
 
     const UserPreferencesPut = new lambda.Function(this, 'UserPreferencesPut', {
@@ -55,6 +57,7 @@ export class NewsbrakeStack extends Stack {
       environment: {
         TABLENAME: UserPreferences.tableName,
       },
+      timeout: cdk.Duration.seconds(10),
     });
 
     const UserPreferencesDelete = new lambda.Function(this, 'UserPreferencesDelete', {
@@ -64,6 +67,7 @@ export class NewsbrakeStack extends Stack {
       environment: {
         TABLENAME: UserPreferences.tableName,
       },
+      timeout: cdk.Duration.seconds(10),
     });
 
     UserPreferences.grantWriteData(UserPreferencesPost);
@@ -85,6 +89,7 @@ export class NewsbrakeStack extends Stack {
       environment: {
         TABLENAME: UserInternalInfo.tableName,
       },
+      timeout: cdk.Duration.seconds(10),
     });
 
     UserInternalInfo.grantWriteData(UserInternalInfoPost);
@@ -103,6 +108,7 @@ export class NewsbrakeStack extends Stack {
       environment: {
         TABLENAME: FeedMetadata.tableName,
       },
+      timeout: cdk.Duration.seconds(10),
     })
 
     const FeedMetadataPost = new triggers.TriggerFunction(this, 'FeedMetadataPost', {
@@ -112,6 +118,7 @@ export class NewsbrakeStack extends Stack {
       environment: {
         TABLENAME: FeedMetadata.tableName,
       },
+      timeout: cdk.Duration.seconds(10),
     })
 
     FeedMetadata.grantReadWriteData(FeedMetadataPost);
@@ -125,7 +132,8 @@ export class NewsbrakeStack extends Stack {
       environment: {
         USERINTERNALINFO: UserInternalInfoPost.functionName,
         USERPREFERENCES: UserPreferencesPost.functionName
-      }
+      },
+      timeout: cdk.Duration.seconds(10),
     });
 
     UserInternalInfoPost.grantInvoke(PostConfirmation);
