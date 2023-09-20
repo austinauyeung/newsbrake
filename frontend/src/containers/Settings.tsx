@@ -105,7 +105,7 @@ export default function Settings() {
                 </LoaderButton>
             </Form>
             <h2 className="mt-5 text-center Delete" onClick={handleShowDelete}>Delete Account</h2>
-            <Modal show={showDelete} onHide={handleCloseDelete}>
+            <Modal className="DeleteModal" show={showDelete} onHide={handleCloseDelete}>
                 <Modal.Header closeButton>
                     <Modal.Title>Delete Account</Modal.Title>
                 </Modal.Header>

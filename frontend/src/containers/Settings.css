@@ -43,3 +43,7 @@
         height: 2.5rem;
     }
 }
+
+.DeleteModal .LoaderButton {
+    width: 4.5rem;
+}

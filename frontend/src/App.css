@@ -90,7 +90,6 @@
 
   .FooterLink {
     color: black;
-    margin-bottom: 0.5rem;
     text-decoration: none;
     margin-bottom: 1rem;
   }
@@ -126,7 +125,7 @@
   }
 
   .FooterLink {
-    margin: 0 0.5rem 0.5rem 1rem;
+    margin: 0 0.5rem 1rem 0.5rem;
   }
 }
 
