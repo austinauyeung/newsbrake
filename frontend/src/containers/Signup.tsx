@@ -9,6 +9,7 @@ import { Auth } from "aws-amplify";
 import { ISignUpResult } from "amazon-cognito-identity-js";
 import { toast } from "react-toastify";
 import "./Signup.css";
+import { MotionDiv } from "../Motion";
 
 export default function Signup() {
     const [fields, handleFieldChange] = useFormFields({
@@ -88,36 +89,38 @@ export default function Signup() {
 
     function renderConfirmationForm() {
         return (
-            <Form onSubmit={handleConfirmationSubmit}>
-                <Stack gap={1}>
-                    <Form.Group controlId="confirmationCode">
-                        <Form.Label>Confirmation Code</Form.Label>
-                        <Form.Control
+            <div className="Signup">
+                <Form onSubmit={handleConfirmationSubmit}>
+                    <Stack gap={1}>
+                        <Form.Group controlId="confirmationCode">
+                            <Form.Label>Confirmation Code</Form.Label>
+                            <Form.Control
+                                size="lg"
+                                autoFocus
+                                type="tel"
+                                onChange={handleFieldChange}
+                                value={fields.confirmationCode}
+                            />
+                            <Form.Text muted>Please check your email for the code.</Form.Text>
+                        </Form.Group>
+                        <LoaderButton
                             size="lg"
-                            autoFocus
-                            type="tel"
-                            onChange={handleFieldChange}
-                            value={fields.confirmationCode}
-                        />
-                        <Form.Text muted>Please check your email for the code.</Form.Text>
-                    </Form.Group>
-                    <LoaderButton
-                        size="lg"
-                        type="submit"
-                        variant="dark"
-                        isLoading={isLoading}
-                        disabled={!validateConfirmationForm()}
-                    >
-                        {!isLoading && "Verify"}
-                    </LoaderButton>
-                </Stack>
-            </Form>
+                            type="submit"
+                            variant="dark"
+                            isLoading={isLoading}
+                            disabled={!validateConfirmationForm()}
+                        >
+                            {!isLoading && "Verify"}
+                        </LoaderButton>
+                    </Stack>
+                </Form>
+            </div>
         );
     }
 
     function renderForm() {
         return (
-            <>
+            <MotionDiv variant="fadeIn" delay={0.1} className="Signup">
                 <h1>Welcome.</h1>
                 <Form onSubmit={handleSubmit}>
                     <Stack gap={1}>
@@ -163,13 +166,13 @@ export default function Signup() {
                         </LoaderButton>
                     </Stack>
                 </Form>
-            </>
+            </MotionDiv>
         );
     }
 
     return (
-        <div className="Signup">
+        <>
             {newUser === null ? renderForm() : renderConfirmationForm()}
-        </div>
+        </>
     );
 }

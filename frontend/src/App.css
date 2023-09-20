@@ -38,7 +38,7 @@
 }
 
 .container-space {
-  grid-template-rows: 5rem 1fr 8rem 0;
+  grid-template-rows: 5rem 1fr 6rem 0;
 }
 
 .center-container {

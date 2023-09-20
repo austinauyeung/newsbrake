@@ -7,7 +7,7 @@ import { putData } from "../lib/auxiliary"
 import { handlePrefChange } from "../lib/hooksLib";
 import { Category } from "../lib/types";
 import Footer from "./Footer";
-import { MotionDiv } from "./Motion";
+import { MotionDiv } from "../Motion";
 
 export default function Home() {
     const { isAuthenticated, metadata, preferences, setPreferences } = useAppContext();
@@ -58,7 +58,7 @@ export default function Home() {
 
     function renderFeeds(categories: Record<string, Category[]>) {
         return (
-            <div className="Feeds">
+            <MotionDiv variant="fadeIn" delay={0.1} className="Feeds">
                 <h1>Feed Preferences</h1>
                 {Object.keys(tempPreferences).length > 0 && (
                     !preferences.feedEnabled ? <p>To view your preferences, please enable your feed in settings.</p>
@@ -104,7 +104,7 @@ export default function Home() {
                             </LoaderButton>
                         </Form>
                 )}
-            </div>
+            </MotionDiv>
         )
     }
 

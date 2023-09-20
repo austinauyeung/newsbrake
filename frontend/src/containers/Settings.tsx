@@ -7,6 +7,7 @@ import { useAppContext } from "../lib/contextLib";
 import { handlePrefChange } from "../lib/hooksLib";
 import { putData, deleteData, handleLogout } from "../lib/auxiliary"
 import { useNavigate } from "react-router-dom";
+import { MotionDiv } from "../Motion";
 
 export default function Settings() {
     const { userHasAuthenticated, setMetadata, preferences, setPreferences } = useAppContext();
@@ -39,7 +40,7 @@ export default function Settings() {
     }, [])
 
     return (
-        <div className="Settings">
+        <MotionDiv variant="fadeIn" delay={0.1} className="Settings">
             <div className="mb-4">
                 <h2>Signed in as</h2>
                 <h3>{email}</h3>
@@ -127,6 +128,6 @@ export default function Settings() {
                     </Form>
                 </Modal.Footer>
             </Modal>
-        </div>
+        </MotionDiv>
     );
 }

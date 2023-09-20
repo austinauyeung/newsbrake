@@ -8,6 +8,7 @@ import LoaderButton from "../components/LoaderButton";
 import { useFormFields } from "../lib/hooksLib";
 import { toast } from "react-toastify";
 import "./Login.css";
+import { MotionDiv } from "../Motion";
 
 export default function Login() {
     const { userHasAuthenticated, isAuthenticated } = useAppContext();
@@ -45,7 +46,7 @@ export default function Login() {
     }
 
     return (
-        <div className="Login">
+        <MotionDiv variant="fadeIn" delay={0.1} className="Login">
             <h1>Welcome back.</h1>
             <Form onSubmit={handleSubmit} noValidate>
                 <Stack gap={1}>
@@ -82,6 +83,6 @@ export default function Login() {
                     </LoaderButton>
                 </Stack>
             </Form>
-        </div>
+        </MotionDiv>
     )
 }
