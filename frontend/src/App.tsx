@@ -1,13 +1,14 @@
 import Routes from "./Routes";
 import { Navbar, Nav, Offcanvas } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { AppContext, AppContextType } from "./lib/contextLib";
 import { API, Auth } from "aws-amplify";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast, ToastContainer, Zoom } from "react-toastify"; // or Slide
 import { Feed, Preferences } from "./lib/types";
 import * as AWS from 'aws-sdk';
+import { handleLogout } from "./lib/auxiliary";
 
 import "./App.css";
 import 'react-toastify/ReactToastify.css';
@@ -94,17 +95,6 @@ function App() {
     }
   }
 
-  async function handleLogout() {
-    handleClose();
-    await Auth.signOut();
-    userHasAuthenticated(false);
-    nav("/login");
-    setMetadata([]);
-    setPreferences({});
-    localStorage.removeItem('metadata');
-    localStorage.removeItem('preferences');
-  }
-
   function navComponent() {
     return (
       <Nav className="ms-auto" activeKey={window.location.pathname}>
@@ -116,7 +106,15 @@ function App() {
             <LinkContainer to="/settings">
               <Nav.Link onClick={handleClose}>Settings</Nav.Link>
             </LinkContainer>
-            <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
+            <Nav.Link onClick={() => {
+              handleClose();
+              handleLogout(
+                userHasAuthenticated,
+                setMetadata,
+                setPreferences,
+                nav
+              );
+            }}>Logout</Nav.Link>
           </>
         ) : (
           <>
@@ -159,7 +157,7 @@ function App() {
         </Navbar>
 
         <div className="center-container">
-          <AppContext.Provider value={{ isAuthenticated, userHasAuthenticated, metadata, preferences, setPreferences } as AppContextType}>
+          <AppContext.Provider value={{ isAuthenticated, userHasAuthenticated, metadata, setMetadata, preferences, setPreferences } as AppContextType}>
             <Routes />
           </AppContext.Provider>
         </div>

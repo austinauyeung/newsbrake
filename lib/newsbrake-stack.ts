@@ -57,9 +57,19 @@ export class NewsbrakeStack extends Stack {
       },
     });
 
+    const UserPreferencesDelete = new lambda.Function(this, 'UserPreferencesDelete', {
+      runtime: lambda.Runtime.NODEJS_16_X,
+      handler: 'UserPreferencesDelete.handler',
+      code: lambda.Code.fromAsset('dist/src'),
+      environment: {
+        TABLENAME: UserPreferences.tableName,
+      },
+    });
+
     UserPreferences.grantWriteData(UserPreferencesPost);
     UserPreferences.grantReadData(UserPreferencesGet);
     UserPreferences.grantWriteData(UserPreferencesPut);
+    UserPreferences.grantWriteData(UserPreferencesDelete);
 
     // DynamoDB table storing user internal info
     const UserInternalInfo = new dynamodb.Table(this, 'UserInternalInfo', {
@@ -86,7 +96,7 @@ export class NewsbrakeStack extends Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
-    const FeedMetadataGet = new triggers.TriggerFunction(this, 'FeedMetadataGet', {
+    const FeedMetadataGet = new lambda.Function(this, 'FeedMetadataGet', {
       runtime: lambda.Runtime.NODEJS_16_X,
       handler: 'FeedMetadataGet.handler',
       code: lambda.Code.fromAsset('dist/src'),
@@ -198,6 +208,9 @@ export class NewsbrakeStack extends Stack {
       authorizationType: apigw.AuthorizationType.IAM,
     });
     preferencesApi.addMethod('PUT', new apigw.LambdaIntegration(UserPreferencesPut), {
+      authorizationType: apigw.AuthorizationType.IAM,
+    });
+    preferencesApi.addMethod('DELETE', new apigw.LambdaIntegration(UserPreferencesDelete), {
       authorizationType: apigw.AuthorizationType.IAM,
     });
 

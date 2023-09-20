@@ -3,7 +3,7 @@ import { useAppContext } from "../lib/contextLib";
 import { useEffect, useState } from "react";
 import { Accordion, Form } from "react-bootstrap";
 import LoaderButton from "../components/LoaderButton";
-import updateData from "../lib/putPreferences"
+import { putData } from "../lib/auxiliary"
 import { handlePrefChange } from "../lib/hooksLib";
 import { Category } from "../lib/types";
 import Footer from "./Footer";
@@ -62,7 +62,7 @@ export default function Home() {
                 {Object.keys(tempPreferences).length > 0 && (
                     !preferences.feedEnabled ? <p>To view your preferences, please enable your feed in settings.</p>
                         :
-                        <Form onSubmit={(event) => updateData(event, tempPreferences, setPreferences, setIsLoading)}>
+                        <Form onSubmit={(event) => putData(event, tempPreferences, setPreferences, setIsLoading)}>
                             <Accordion alwaysOpen>
                                 {Object.entries(categories).map(([category, feeds], index) => (
                                     <Accordion.Item key={category} eventKey={index.toString()}>
@@ -71,24 +71,21 @@ export default function Home() {
                                             {feeds.map(feed => {
                                                 const { feedName } = feed;
                                                 return (
-                                                    <>
-                                                        <div key={feedName} className="AccordionFeed">
-                                                            {feed?.logo ? <a href={feed.url} target="_blank"><img src={feed.logo} className={
-                                                                `${feedName === 'KFF Health News' ? 'logo1' : 'logo2'}`} /></a>
-                                                                : feedName}
-                                                            {Object.keys(feed.subfeeds).map(subfeed => (
-                                                                <Form.Check
-                                                                    type='checkbox'
-                                                                    id={subfeed}
-                                                                    label={subfeed}
-                                                                    key={subfeed}
-                                                                    checked={tempPreferences.feeds[feed.feedName][subfeed] === 1}
-                                                                    onChange={(event) => handlePrefChange(event, setTempPreferences, feed.feedName, subfeed)}
-                                                                />
-                                                            ))}
-                                                        </div>
-                                                        {/* <hr /> */}
-                                                    </>
+                                                    <div key={feedName} className="AccordionFeed">
+                                                        {feed?.logo ? <a href={feed.url} target="_blank" rel="noopener noreferrer"><img src={feed.logo} className={
+                                                            `${feedName === 'KFF Health News' ? 'logo1' : 'logo2'}`} /></a>
+                                                            : feedName}
+                                                        {Object.keys(feed.subfeeds).map(subfeed => (
+                                                            <Form.Check
+                                                                type='checkbox'
+                                                                id={subfeed}
+                                                                label={subfeed}
+                                                                key={subfeed}
+                                                                checked={tempPreferences.feeds[feed.feedName][subfeed] === 1}
+                                                                onChange={(event) => handlePrefChange(event, setTempPreferences, feed.feedName, subfeed)}
+                                                            />
+                                                        ))}
+                                                    </div>
                                                 )
                                             })}
                                         </Accordion.Body>

@@ -25,3 +25,21 @@
 .input-group {
     max-width: 500px;
 }
+
+.Delete {
+    cursor: pointer;
+}
+
+.modal-title {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+.modal-dialog {
+    .LoaderButton {
+        margin-top: 0;
+    }
+
+    .btn {
+        height: 2.5rem;
+    }
+}

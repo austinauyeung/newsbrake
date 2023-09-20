@@ -81,6 +81,7 @@ export default function Signup() {
             nav("/");
         } catch (error: any) {
             toast.error("Confirmation error.");
+            console.log(error)
         }
         setIsLoading(false);
     }
