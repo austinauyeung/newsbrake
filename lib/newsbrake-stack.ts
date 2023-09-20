@@ -118,12 +118,6 @@ export class NewsbrakeStack extends Stack {
     FeedMetadata.grantReadData(FeedMetadataGet)
 
     // Cognito User Pool and Client
-    const CustomMessage = new lambda.Function(this, 'CustomMessage', {
-      runtime: lambda.Runtime.NODEJS_16_X,
-      handler: 'CustomMessage.handler',
-      code: lambda.Code.fromAsset('dist/src'),
-    });
-
     const PostConfirmation = new lambda.Function(this, 'PostConfirmation', {
       runtime: lambda.Runtime.NODEJS_16_X,
       handler: 'PostConfirmation.handler',
@@ -147,7 +141,6 @@ export class NewsbrakeStack extends Stack {
       },
       lambdaTriggers: {
         postConfirmation: PostConfirmation,
-        customMessage: CustomMessage,
       },
       email: cognito.UserPoolEmail.withSES({
         fromEmail: 'confirm@newsbrake.app',
