@@ -22,7 +22,7 @@ export function useFormFields(
     ];
 }
 
-export function handleSubfeedChange(event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement> | any, setPreferences: React.Dispatch<React.SetStateAction<Preferences>>, feedName = '', subfeed = '') {
+export function handlePrefChange(event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement> | any, setPreferences: React.Dispatch<React.SetStateAction<Preferences>>, feedName = '', subfeed = '') {
     setPreferences(prevPreferences => {
         let newPreferences = { ...prevPreferences };
 

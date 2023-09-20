@@ -5,6 +5,8 @@ import { Accordion, Form } from "react-bootstrap";
 import LoaderButton from "../components/LoaderButton";
 import updateData from "../lib/putPreferences"
 import { handlePrefChange } from "../lib/hooksLib";
+import { Category } from "../lib/types";
+import Footer from "./Footer";
 
 export default function Home() {
     const { isAuthenticated, metadata, preferences, setPreferences } = useAppContext();
@@ -17,12 +19,16 @@ export default function Home() {
         }
         acc[feed.category].push({
             feedName: feed.feedName,
-            subfeeds: feed.subfeeds
+            subfeeds: feed.subfeeds,
+            url: feed.url,
+            logo: feed.logo
         });
         return acc;
-    }, {} as Record<string, { feedName: string, subfeeds: Record<string, string> }[]>)
+    }, {} as Record<string, Category[]>)
 
     useEffect(() => {
+        console.log(metadata)
+        console.log(categories)
         console.log(preferences)
         console.log(tempPreferences)
         setTempPreferences(preferences)
@@ -45,18 +51,11 @@ export default function Home() {
                         <p>In the current media landscape, distinguishing signal from noise has never been more critical. newsbrake underscores the importance of journalism that operates independently from commercial or political pressures and sources its material from outlets that utilize Creative Commons licensing. By championing content under this license, newsbrake provides readers with reliable and objective content that is accessible to all.</p>
                     </div>
                 </div>
-                <div className="bottom-container">
-                    <a>Terms of Service</a>
-                    <a>Privacy Policy</a>
-                    <a>About</a>
-                    <a>FAQs</a>
-                    <a>GitHub</a>
-                </div>
             </>
         );
     }
 
-    function renderFeeds(categories: Record<string, { feedName: string, subfeeds: Record<string, string> }[]>) {
+    function renderFeeds(categories: Record<string, Category[]>) {
         return (
             <div className="Feeds">
                 <h1>Feed Preferences</h1>
@@ -72,20 +71,24 @@ export default function Home() {
                                             {feeds.map(feed => {
                                                 const { feedName } = feed;
                                                 return (
-                                                    <div key={feedName} className="AccordionFeed">
-                                                        {feedName}
-                                                        {Object.keys(feed.subfeeds).map(subfeed => (
-                                                            <Form.Check
-                                                                className=".custom-border-radius"
-                                                                type='checkbox'
-                                                                id={subfeed}
-                                                                label={subfeed}
-                                                                key={subfeed}
-                                                                checked={tempPreferences.feeds[feed.feedName][subfeed] === 1}
-                                                                onChange={(event) => handlePrefChange(event, setTempPreferences, feed.feedName, subfeed)}
-                                                            />
-                                                        ))}
-                                                    </div>
+                                                    <>
+                                                        <div key={feedName} className="AccordionFeed">
+                                                            {feed?.logo ? <a href={feed.url} target="_blank"><img src={feed.logo} className={
+                                                                `${feedName === 'KFF Health News' ? 'logo1' : 'logo2'}`} /></a>
+                                                                : feedName}
+                                                            {Object.keys(feed.subfeeds).map(subfeed => (
+                                                                <Form.Check
+                                                                    type='checkbox'
+                                                                    id={subfeed}
+                                                                    label={subfeed}
+                                                                    key={subfeed}
+                                                                    checked={tempPreferences.feeds[feed.feedName][subfeed] === 1}
+                                                                    onChange={(event) => handlePrefChange(event, setTempPreferences, feed.feedName, subfeed)}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                        {/* <hr /> */}
+                                                    </>
                                                 )
                                             })}
                                         </Accordion.Body>
@@ -109,7 +112,13 @@ export default function Home() {
 
     return (
         <div className="Home">
-            {isAuthenticated ? renderFeeds(categories) : renderLander()}
+            {isAuthenticated ? renderFeeds(categories)
+                :
+                <>
+                    {renderLander()}
+                    {Footer()}
+                </>
+            }
         </div>
     );
 

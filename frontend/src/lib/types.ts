@@ -1,6 +1,14 @@
 export interface Feed {
     feedName: string;
     category: string;
+    url: string;
+    logo: string;
+    subfeeds: Record<string, string>;
+}
+export interface Category {
+    feedName: string;
+    url: string;
+    logo: string;
     subfeeds: Record<string, string>;
 }
 

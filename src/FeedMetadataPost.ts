@@ -22,6 +22,8 @@ exports.handler = async () => {
         {
             feedName: 'Wikipedia',
             category: 'News',
+            url: 'https://en.wikipedia.org/wiki/Portal:Current_events',
+            logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Wikipedia-logo-textonly.svg/1920px-Wikipedia-logo-textonly.svg.png',
             subfeeds: {
                 'Current Events': 'https://en.wikipedia.org/wiki/Portal:Current_events'
             },
@@ -29,6 +31,8 @@ exports.handler = async () => {
         {
             feedName: 'The Conversation',
             category: 'News',
+            url: 'https://theconversation.com/',
+            logo: 'https://cdn.theconversation.com/static/tc/@theconversation/ui/dist/esm/logos/logo-horizontal-en-df7faf4238d541b16db76bba081fdd73.png',
             subfeeds: {
                 'All Articles - English': 'https://theconversation.com/articles.atom?language=en',
                 'All Articles - Spanish': 'https://theconversation.com/articles.atom?language=es',
@@ -40,6 +44,8 @@ exports.handler = async () => {
         {
             feedName: 'KFF Health News',
             category: 'Health',
+            url: 'https://kffhealthnews.org/',
+            logo: 'https://kffhealthnews.org/wp-content/themes/kaiser-healthnews-2017/static/images/kffhealthnews-logo.svg',
             subfeeds: {
                 'Original Content': 'https://kffhealthnews.org/topics/syndicate/feed/aprss'
             },
