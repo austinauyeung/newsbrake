@@ -15,7 +15,6 @@
 }
 
 .bottom-container {
-    /* border-top: 2px solid rgb(200, 200, 200); */
     display: flex;
     flex-direction: column;
 }
@@ -59,6 +58,31 @@
     .logo2 {
         height: 50px;
     }
+}
+
+/* accordion */
+.accordion-item,
+.accordion-button {
+    border-radius: 0 !important;
+}
+
+.accordion-button:focus,
+.form-select:focus {
+    box-shadow: none;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: white;
+    color: black;
+    box-shadow: none;
+}
+
+.accordion-button {
+    font-size: 1.8rem;
+}
+
+.accordion-button::after {
+    background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000000'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>") !important;
 }
 
 .Footer {

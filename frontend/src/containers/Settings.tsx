@@ -41,6 +41,7 @@ export default function Settings() {
 
     return (
         <MotionDiv variant="fadeIn" delay={0.1} className="Settings">
+            <h1>Settings</h1>
             <div className="mb-4">
                 <h2>Signed in as</h2>
                 <h3>{email}</h3>

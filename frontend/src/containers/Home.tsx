@@ -35,6 +35,10 @@ export default function Home() {
         setTempPreferences(preferences)
     }, [preferences])
 
+    useEffect(() => {
+        console.log('data length: ' + Object.keys(tempPreferences).length)
+    }, [tempPreferences])
+
     function renderLander() {
         return (
             <>
@@ -61,7 +65,7 @@ export default function Home() {
             <MotionDiv variant="fadeIn" delay={0.1} className="Feeds">
                 <h1>Feed Preferences</h1>
                 {Object.keys(tempPreferences).length > 0 &&
-                    <MotionDiv variant="fadeIn" delay={0.5}>
+                    <MotionDiv variant="fadeIn" delay={0}>
                         {
                             !preferences.feedEnabled ? <p>To view your preferences, please enable your feed in settings.</p>
                                 :

@@ -7,9 +7,9 @@ import LoaderButton from "../components/LoaderButton";
 import { Auth } from "aws-amplify";
 import { ISignUpResult } from "amazon-cognito-identity-js";
 import { toast } from "react-toastify";
-import "./Signup.css";
 import { MotionDiv } from "../Motion";
 import { validPassword, validateForm, renderConfirmationForm } from "../lib/auxiliary";
+import "../authStyles.css";
 
 export default function Signup() {
     const [fields, handleFieldChange] = useFormFields({

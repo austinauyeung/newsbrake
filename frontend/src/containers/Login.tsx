@@ -6,9 +6,9 @@ import { useNavigate } from "react-router-dom";
 import LoaderButton from "../components/LoaderButton";
 import { useFormFields } from "../lib/hooksLib";
 import { toast } from "react-toastify";
-import "./Login.css";
 import { MotionDiv } from "../Motion";
 import { validateForm, validPassword, renderConfirmationForm } from "../lib/auxiliary";
+import "../authStyles.css";
 
 export default function Login() {
     const { userHasAuthenticated, isAuthenticated } = useAppContext();

@@ -46,90 +46,6 @@
   justify-content: center;
 }
 
-/* Login/Signup forms */
-.form-control,
-.form-select {
-  border-radius: 0;
-}
-
-.form-control:focus,
-.form-check-input:focus,
-.form-select:focus {
-  border-color: black;
-  box-shadow: 0 0 0 0.1rem rgba(0, 0, 0, 0.6);
-}
-
-@media all and (min-width: 0px) {
-
-  .Signup,
-  .Login {
-    padding: 20px 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: center;
-    width: 100%;
-  }
-
-  .Signup form,
-  .Login div {
-    width: 100%;
-  }
-
-  .Signup h1,
-  .Login h1 {
-    margin-bottom: 2rem;
-  }
-
-  .Footer {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-  }
-
-  .FooterLink {
-    color: black;
-    text-decoration: none;
-    margin-bottom: 1rem;
-  }
-}
-
-@media all and (min-width: 800px) {
-
-  .Signup,
-  .Login {
-    padding: 20px 20px;
-    /* margin-top: 10rem; */
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    flex-direction: row;
-  }
-
-  .Signup div,
-  .Signup form,
-  .Login div,
-  .Login form {
-    max-width: 400px;
-    width: 100%;
-  }
-
-  .Signup h1,
-  .Login h1 {
-    margin-bottom: 0;
-    margin-right: 5rem;
-  }
-
-  .Footer {
-    flex-direction: row;
-    justify-content: center;
-  }
-
-  .FooterLink {
-    margin: 0 0.5rem 1rem 0.5rem;
-  }
-}
-
 /* All h1 and p */
 h1,
 h2,
@@ -155,42 +71,6 @@ p {
   text-align: left;
 }
 
-/* form {
-  border: 1px solid rgb(176, 176, 176);
-  padding: 3rem;
-  border-radius: 0.5rem;
-} */
-
-
-/* accordion */
-.accordion-item,
-.accordion-button {
-  border-radius: 0 !important;
-}
-
-.accordion-button:focus,
-.form-select:focus {
-  box-shadow: none;
-}
-
-.accordion-button:not(.collapsed) {
-  background-color: white;
-  color: black;
-  box-shadow: none;
-}
-
-.accordion-button {
-  font-size: 1.8rem;
-}
-
-.accordion-button::after {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000000'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>") !important;
-}
-
-/* .offcanvas-body .nav-link {
-  max-width: 60px;
-} */
-
 .offcanvas-title {
   font-family: Georgia, 'Times New Roman', Times, serif;
   font-size: 2rem;
@@ -198,9 +78,4 @@ p {
 
 .offcanvas {
   max-width: 200px;
-}
-
-.form-text {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
 }
