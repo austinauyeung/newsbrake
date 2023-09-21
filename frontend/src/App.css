@@ -78,8 +78,7 @@
 
   .Signup h1,
   .Login h1 {
-    margin-bottom: 0;
-    /* font-family: 'Libre Baskerville'; */
+    margin-bottom: 2rem;
   }
 
   .Footer {
