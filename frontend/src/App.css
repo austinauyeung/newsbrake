@@ -72,7 +72,7 @@
   }
 
   .Signup form,
-  .Login form {
+  .Login div {
     width: 100%;
   }
 
@@ -107,7 +107,9 @@
     flex-direction: row;
   }
 
+  .Signup div,
   .Signup form,
+  .Login div,
   .Login form {
     max-width: 400px;
     width: 100%;
@@ -197,4 +199,9 @@ p {
 
 .offcanvas {
   max-width: 200px;
+}
+
+.form-text {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
 }

@@ -1,4 +1,4 @@
-import Button from "react-bootstrap/Button";
+import { Button } from "react-bootstrap";
 import { BsArrowRepeat } from "react-icons/bs";
 import "./LoaderButton.css";
 

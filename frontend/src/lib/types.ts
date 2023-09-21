@@ -24,3 +24,7 @@ export interface Preferences {
     fetchTime: number,
     kindleEmail: string,
 }
+
+export interface FieldsType {
+    [key: string | symbol]: string;
+}

@@ -1,13 +1,9 @@
 import { useState, ChangeEvent, ChangeEventHandler } from "react";
-import { Preferences } from "./types";
-
-interface FieldsType {
-    [key: string | symbol]: string;
-}
+import { Preferences, FieldsType } from "./types";
 
 export function useFormFields(
     initialState: FieldsType
-): [FieldsType, ChangeEventHandler] {
+): [FieldsType, ChangeEventHandler, (key: string, value: string) => void] {
     const [fields, setValues] = useState(initialState);
 
     return [
@@ -17,7 +13,12 @@ export function useFormFields(
                 ...fields,
                 [event.target.id]: event.target.value,
             });
-            return;
+        },
+        function (key: string, value: string) {
+            setValues(prevFields => ({
+                ...prevFields,
+                [key]: value
+            }));
         }
     ];
 }
