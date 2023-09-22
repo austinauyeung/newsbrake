@@ -29,6 +29,7 @@ export async function putData(event: React.FormEvent<HTMLFormElement>, tempPrefe
         setPreferences(tempPreferences);
         localStorage.setItem('preferences', JSON.stringify(tempPreferences));
     } catch (error) {
+        toast.error("Service rate limit reached. Please try again later.")
         console.log(error);
     }
     setIsLoading(false);

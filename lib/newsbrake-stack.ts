@@ -171,6 +171,7 @@ export class NewsbrakeStack extends Stack {
         allowCredentials: true,
         allowMethods: [apigwv2.CorsHttpMethod.ANY],
         allowOrigins: ['http://localhost:5173'],
+        maxAge: cdk.Duration.seconds(600)
       },
       defaultAuthorizer: new HttpUserPoolAuthorizer('UserPoolAuthorizer', userPool, { userPoolClients: [userPoolClient] }),
     })
@@ -209,8 +210,5 @@ export class NewsbrakeStack extends Stack {
     new cdk.CfnOutput(this, 'UserPoolClientId', {
       value: userPoolClient.userPoolClientId ?? ""
     });
-    // new cdk.CfnOutput(this, 'IdentityPoolId', {
-    //   value: identityPool.ref ?? ""
-    // });
   }
 }
