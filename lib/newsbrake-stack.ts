@@ -9,6 +9,7 @@ import * as triggers from 'aws-cdk-lib/triggers';
 import * as apigwv2 from '@aws-cdk/aws-apigatewayv2-alpha';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import { HttpUserPoolAuthorizer } from '@aws-cdk/aws-apigatewayv2-authorizers-alpha';
+import { CfnStage } from 'aws-cdk-lib/aws-apigatewayv2';
 
 export class NewsbrakeStack extends Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -171,8 +172,11 @@ export class NewsbrakeStack extends Stack {
         allowMethods: [apigwv2.CorsHttpMethod.ANY],
         allowOrigins: ['http://localhost:5173'],
       },
-      defaultAuthorizer: new HttpUserPoolAuthorizer('UserPoolAuthorizer', userPool, { userPoolClients: [userPoolClient] })
+      defaultAuthorizer: new HttpUserPoolAuthorizer('UserPoolAuthorizer', userPool, { userPoolClients: [userPoolClient] }),
     })
+
+    const cfnStage = api.defaultStage?.node.defaultChild as CfnStage;
+    cfnStage.addPropertyOverride("DefaultRouteSettings", { ThrottlingBurstLimit: 1500, ThrottlingRateLimit: 1000 });
 
     api.addRoutes({
       path: '/preferences',
