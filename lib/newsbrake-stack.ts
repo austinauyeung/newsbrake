@@ -3,9 +3,12 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as cdk from 'aws-cdk-lib/core';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
-import * as iam from 'aws-cdk-lib/aws-iam';
-import * as apigw from 'aws-cdk-lib/aws-apigateway'
+// import * as iam from 'aws-cdk-lib/aws-iam';
+// import * as apigw from 'aws-cdk-lib/aws-apigateway'
 import * as triggers from 'aws-cdk-lib/triggers';
+import * as apigwv2 from '@aws-cdk/aws-apigatewayv2-alpha';
+import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
+import { HttpUserPoolAuthorizer } from '@aws-cdk/aws-apigatewayv2-authorizers-alpha';
 
 export class NewsbrakeStack extends Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -159,69 +162,37 @@ export class NewsbrakeStack extends Stack {
     });
     const userPoolClient = userPool.addClient('UserPoolClient');
 
-    // Cognito Identity Pool
-    const identityPool = new cognito.CfnIdentityPool(this, 'IdentityPool', {
-      allowUnauthenticatedIdentities: false,
-      cognitoIdentityProviders: [{
-        clientId: userPoolClient.userPoolClientId,
-        providerName: userPool.userPoolProviderName,
-      }],
-    })
-
-    // IAM Role for Authenticated Users
-    const authRole = new iam.Role(this, 'CognitoDefaultAuthenticatedRole', {
-      assumedBy: new iam.FederatedPrincipal('cognito-identity.amazonaws.com', {
-        "StringEquals": {
-          "cognito-identity.amazonaws.com:aud": identityPool.ref
-        },
-        "ForAnyValue:StringLike": {
-          "cognito-identity.amazonaws.com:amr": "authenticated"
-        }
-      }, "sts:AssumeRoleWithWebIdentity"),
-    });
-
-    authRole.addToPolicy(new iam.PolicyStatement({
-      actions: ['execute-api:Invoke'],
-      effect: iam.Effect.ALLOW,
-      resources: ["*"],
-    }));
-
-    new cognito.CfnIdentityPoolRoleAttachment(this, "IdentityPoolRoleAttachment", {
-      identityPoolId: identityPool.ref,
-      roles: {
-        authenticated: authRole.roleArn
-      }
-    })
-
     // API Gateway, REST API
-    const api = new apigw.RestApi(this, "RestApi", {
-      restApiName: 'RestApi'
-    });
-    const preferencesApi = api.root.addResource('preferences');
-    const metadataApi = api.root.addResource('metadata');
+    const api = new apigwv2.HttpApi(this, "HttpApi", {
+      apiName: "HttpApi",
+      corsPreflight: {
+        allowHeaders: ['*'],
+        allowCredentials: true,
+        allowMethods: [apigwv2.CorsHttpMethod.ANY],
+        allowOrigins: ['http://localhost:5173'],
+      },
+      defaultAuthorizer: new HttpUserPoolAuthorizer('UserPoolAuthorizer', userPool, { userPoolClients: [userPoolClient] })
+    })
 
-    preferencesApi.addCorsPreflight({
-      allowOrigins: apigw.Cors.ALL_ORIGINS,
-      allowMethods: apigw.Cors.ALL_METHODS,
-      allowCredentials: true,
+    api.addRoutes({
+      path: '/preferences',
+      methods: [apigwv2.HttpMethod.GET],
+      integration: new HttpLambdaIntegration('UserPreferencesGet', UserPreferencesGet),
     });
-    preferencesApi.addMethod('GET', new apigw.LambdaIntegration(UserPreferencesGet), {
-      authorizationType: apigw.AuthorizationType.IAM,
+    api.addRoutes({
+      path: '/preferences',
+      methods: [apigwv2.HttpMethod.PUT],
+      integration: new HttpLambdaIntegration('UserPreferencesPut', UserPreferencesPut)
     });
-    preferencesApi.addMethod('PUT', new apigw.LambdaIntegration(UserPreferencesPut), {
-      authorizationType: apigw.AuthorizationType.IAM,
+    api.addRoutes({
+      path: '/preferences',
+      methods: [apigwv2.HttpMethod.DELETE],
+      integration: new HttpLambdaIntegration('UserPreferencesDelete', UserPreferencesDelete)
     });
-    preferencesApi.addMethod('DELETE', new apigw.LambdaIntegration(UserPreferencesDelete), {
-      authorizationType: apigw.AuthorizationType.IAM,
-    });
-
-    metadataApi.addCorsPreflight({
-      allowOrigins: apigw.Cors.ALL_ORIGINS,
-      allowMethods: apigw.Cors.ALL_METHODS,
-      allowCredentials: true,
-    });
-    metadataApi.addMethod('GET', new apigw.LambdaIntegration(FeedMetadataGet), {
-      authorizationType: apigw.AuthorizationType.IAM,
+    api.addRoutes({
+      path: '/metadata',
+      methods: [apigwv2.HttpMethod.GET],
+      integration: new HttpLambdaIntegration('FeedMetadataGet', FeedMetadataGet)
     });
 
     // Output API URL
@@ -234,8 +205,8 @@ export class NewsbrakeStack extends Stack {
     new cdk.CfnOutput(this, 'UserPoolClientId', {
       value: userPoolClient.userPoolClientId ?? ""
     });
-    new cdk.CfnOutput(this, 'IdentityPoolId', {
-      value: identityPool.ref ?? ""
-    });
+    // new cdk.CfnOutput(this, 'IdentityPoolId', {
+    //   value: identityPool.ref ?? ""
+    // });
   }
 }

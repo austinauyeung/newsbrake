@@ -58,9 +58,18 @@ function App() {
 
   async function fetchData() {
     try {
+      const token = (await Auth.currentSession()).getIdToken().getJwtToken();
       const [metadataResponse, preferencesResponse] = await Promise.all([
-        API.get("RestApi", "metadata", {}),
-        API.get("RestApi", "preferences", {})
+        API.get("HttpApi", "metadata", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        }),
+        API.get("HttpApi", "preferences", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        })
       ]);
       const fetchedMetadata = metadataResponse.data.Items;
       const fetchedPreferences = AWS.DynamoDB.Converter.unmarshall(preferencesResponse.data.Item);

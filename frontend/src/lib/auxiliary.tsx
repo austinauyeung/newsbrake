@@ -17,8 +17,12 @@ export async function putData(event: React.FormEvent<HTMLFormElement>, tempPrefe
 
     try {
         console.log(tempPreferences)
-        const response = await API.put("RestApi", "preferences", {
-            body: tempPreferences
+        const token = (await Auth.currentSession()).getIdToken().getJwtToken();
+        const response = await API.put("HttpApi", "preferences", {
+            body: tempPreferences,
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
         })
         console.log(response);
         toast.info("Preferences saved.", { toastId: "saved" })
@@ -33,8 +37,13 @@ export async function putData(event: React.FormEvent<HTMLFormElement>, tempPrefe
 export async function deleteData(setIsLoading: React.Dispatch<React.SetStateAction<boolean>>) {
     setIsLoading(true);
     console.log('deleting')
+    const token = (await Auth.currentSession()).getIdToken().getJwtToken();
     try {
-        await API.del("RestApi", "preferences", {});
+        await API.del("HttpApi", "preferences", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
         await Auth.deleteUser();
         toast("Your account has been deleted.", { toastId: "deleted" })
     } catch (error) {
@@ -75,6 +84,8 @@ export function validateForm(fields: FieldsType, loginState: string) {
             return fields.email.length > 0
         case 'resetConfirm':
             return fields.password.length > 0 && fields.password == fields.confirmPassword && fields.confirmationCode.length > 0 && validPassword(fields.password)
+        default:
+            return false;
     }
 }
 
