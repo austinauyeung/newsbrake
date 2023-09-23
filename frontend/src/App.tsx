@@ -60,12 +60,12 @@ function App() {
     try {
       const token = (await Auth.currentSession()).getIdToken().getJwtToken();
       const [metadataResponse, preferencesResponse] = await Promise.all([
-        API.get("HttpApi", "metadata", {
+        API.get("api", "metadata", {
           headers: {
             Authorization: `Bearer ${token}`,
           }
         }),
-        API.get("HttpApi", "preferences", {
+        API.get("api", "preferences", {
           headers: {
             Authorization: `Bearer ${token}`,
           }

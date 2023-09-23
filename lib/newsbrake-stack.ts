@@ -6,10 +6,8 @@ import * as cognito from 'aws-cdk-lib/aws-cognito';
 // import * as iam from 'aws-cdk-lib/aws-iam';
 // import * as apigw from 'aws-cdk-lib/aws-apigateway'
 import * as triggers from 'aws-cdk-lib/triggers';
-import * as apigwv2 from '@aws-cdk/aws-apigatewayv2-alpha';
-import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
-import { HttpUserPoolAuthorizer } from '@aws-cdk/aws-apigatewayv2-authorizers-alpha';
-import { CfnStage } from 'aws-cdk-lib/aws-apigatewayv2';
+import * as apigw from 'aws-cdk-lib/aws-apigateway';
+import { aws_wafv2 as wafv2 } from 'aws-cdk-lib';
 
 export class NewsbrakeStack extends Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -164,41 +162,71 @@ export class NewsbrakeStack extends Stack {
     const userPoolClient = userPool.addClient('UserPoolClient');
 
     // API Gateway, REST API
-    const api = new apigwv2.HttpApi(this, "HttpApi", {
-      apiName: "HttpApi",
-      corsPreflight: {
-        allowHeaders: ['*'],
-        allowCredentials: true,
-        allowMethods: [apigwv2.CorsHttpMethod.ANY],
+    const api = new apigw.RestApi(this, "RestApi", {
+      restApiName: 'RestApi',
+      defaultCorsPreflightOptions: {
         allowOrigins: ['http://localhost:5173'],
+        allowHeaders: apigw.Cors.DEFAULT_HEADERS,
+        allowMethods: apigw.Cors.ALL_METHODS,
         maxAge: cdk.Duration.seconds(600)
       },
-      defaultAuthorizer: new HttpUserPoolAuthorizer('UserPoolAuthorizer', userPool, { userPoolClients: [userPoolClient] }),
+      defaultMethodOptions: {
+        authorizer: new apigw.CognitoUserPoolsAuthorizer(this, 'UserPoolAuthorizer', { cognitoUserPools: [userPool] })
+      }
+    });
+    const preferencesApi = api.root.addResource('preferences');
+    const metadataApi = api.root.addResource('metadata');
+
+    preferencesApi.addMethod('GET', new apigw.LambdaIntegration(UserPreferencesGet), {});
+    preferencesApi.addMethod('PUT', new apigw.LambdaIntegration(UserPreferencesPut), {});
+    preferencesApi.addMethod('DELETE', new apigw.LambdaIntegration(UserPreferencesDelete), {});
+    metadataApi.addMethod('GET', new apigw.LambdaIntegration(FeedMetadataGet), {});
+
+    // WAF
+    new wafv2.CfnWebACL(this, 'WebACL', {
+      scope: 'REGIONAL',
+      defaultAction: {
+        block: {}
+      },
+      visibilityConfig: {
+        cloudWatchMetricsEnabled: true,
+        sampledRequestsEnabled: true,
+        metricName: 'WebACLMetric'
+      },
+      rules: [
+        {
+          name: 'geoMatchRule',
+          priority: 0,
+          statement: {
+            geoMatchStatement: {
+              countryCodes: ["US", "CA"]
+            },
+          },
+          visibilityConfig: {
+            cloudWatchMetricsEnabled: true,
+            sampledRequestsEnabled: true,
+            metricName: 'WebACLGeoMatch'
+          },
+          action: { allow: {} },
+        },
+        {
+          name: 'rateLimitRule',
+          priority: 1,
+          statement: {
+            rateBasedStatement: {
+              aggregateKeyType: 'IP',
+              limit: 200,
+            }
+          },
+          visibilityConfig: {
+            cloudWatchMetricsEnabled: true,
+            sampledRequestsEnabled: true,
+            metricName: 'WebACLRateLimit'
+          },
+          action: { block: {} }
+        }
+      ]
     })
-
-    const cfnStage = api.defaultStage?.node.defaultChild as CfnStage;
-    cfnStage.addPropertyOverride("DefaultRouteSettings", { ThrottlingBurstLimit: 1500, ThrottlingRateLimit: 1000 });
-
-    api.addRoutes({
-      path: '/preferences',
-      methods: [apigwv2.HttpMethod.GET],
-      integration: new HttpLambdaIntegration('UserPreferencesGet', UserPreferencesGet),
-    });
-    api.addRoutes({
-      path: '/preferences',
-      methods: [apigwv2.HttpMethod.PUT],
-      integration: new HttpLambdaIntegration('UserPreferencesPut', UserPreferencesPut)
-    });
-    api.addRoutes({
-      path: '/preferences',
-      methods: [apigwv2.HttpMethod.DELETE],
-      integration: new HttpLambdaIntegration('UserPreferencesDelete', UserPreferencesDelete)
-    });
-    api.addRoutes({
-      path: '/metadata',
-      methods: [apigwv2.HttpMethod.GET],
-      integration: new HttpLambdaIntegration('FeedMetadataGet', FeedMetadataGet)
-    });
 
     // Output API URL
     new cdk.CfnOutput(this, 'ApiUrl', {

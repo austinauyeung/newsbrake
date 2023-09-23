@@ -1,10 +1,14 @@
 import { DynamoDB } from 'aws-sdk';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { addCORSHeaders } from './lib/corsLib';
 
 const tableName = process.env.TABLENAME || '';
 
 exports.handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    const userId = event.requestContext.authorizer?.jwt?.claims?.sub;
+    const origin = event.headers ? (event.headers.Origin || event.headers.origin) : undefined;
+    const corsHeaders = addCORSHeaders(origin, 'GET');
+
+    const userId = event.requestContext.authorizer?.claims?.sub;
     try {
         const data = await (new DynamoDB).getItem({
             TableName: tableName,
@@ -21,6 +25,9 @@ exports.handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
                 data: data,
                 event: event
             }),
+            headers: {
+                ...corsHeaders,
+            },
         };
     } catch (error: any) {
         console.error(error)
@@ -29,6 +36,9 @@ exports.handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
             body: JSON.stringify({
                 error: error
             }),
+            headers: {
+                ...corsHeaders,
+            },
         };
     }
 };
