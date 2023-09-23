@@ -1,10 +1,16 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { NewsbrakeStack } from '../lib/newsbrake-stack';
+import { DevStage } from '../lib/stages/dev';
+import * as dotenv from 'dotenv';
+
+dotenv.config()
 
 const app = new cdk.App();
-new NewsbrakeStack(app, 'NewsbrakeStack', {
+const accountId = process.env.AWS_ACCOUNT_ID;
+const region = process.env.AWS_DEFAULT_REGION;
+
+new DevStage(app, 'NewsbrakeDev', {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */
@@ -18,4 +24,8 @@ new NewsbrakeStack(app, 'NewsbrakeStack', {
   // env: { account: '123456789012', region: 'us-east-1' },
 
   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+  env: {
+    account: accountId,
+    region: region,
+  }
 });

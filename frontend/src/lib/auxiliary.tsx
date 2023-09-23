@@ -18,7 +18,7 @@ export async function putData(event: React.FormEvent<HTMLFormElement>, tempPrefe
     try {
         console.log(tempPreferences)
         const token = (await Auth.currentSession()).getIdToken().getJwtToken();
-        const response = await API.put("HttpApi", "preferences", {
+        const response = await API.put("api", "preferences", {
             body: tempPreferences,
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -40,7 +40,7 @@ export async function deleteData(setIsLoading: React.Dispatch<React.SetStateActi
     console.log('deleting')
     const token = (await Auth.currentSession()).getIdToken().getJwtToken();
     try {
-        await API.del("HttpApi", "preferences", {
+        await API.del("api", "preferences", {
             headers: {
                 Authorization: `Bearer ${token}`,
             }

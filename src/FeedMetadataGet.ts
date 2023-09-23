@@ -11,7 +11,7 @@ exports.handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
     };
 
     const origin = event.headers ? (event.headers.Origin || event.headers.origin) : undefined;
-    const corsHeaders = addCORSHeaders(origin, 'GET')
+    const corsHeaders = addCORSHeaders(origin, 'GET');
 
     try {
         const data = await dynamo.scan(params).promise();
