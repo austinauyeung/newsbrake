@@ -30,6 +30,14 @@ export class ApigwStack extends Stack {
             },
             defaultMethodOptions: {
                 authorizer: new apigw.CognitoUserPoolsAuthorizer(this, 'UserPoolAuthorizer', { cognitoUserPools: [props.UserPool] })
+            },
+            deployOptions: {
+                methodOptions: {
+                    '*/*': {
+                        throttlingBurstLimit: 1500,
+                        throttlingRateLimit: 1000
+                    }
+                }
             }
         });
 

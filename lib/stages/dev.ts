@@ -7,8 +7,8 @@ export class DevStage extends cdk.Stage {
     constructor(scope: cdk.App, id: string, props?: cdk.StageProps) {
         super(scope, id, props);
 
-        const database = new DatabaseStack(this, 'DatabaseStack-dev', {})
-        const auth = new AuthStack(this, 'AuthStack-dev', {
+        const database = new DatabaseStack(this, 'DatabaseStack', {})
+        const auth = new AuthStack(this, 'AuthStack', {
             UserInternalInfoPost: database.UserInternalInfoPost,
             UserPreferencesPost: database.UserPreferencesPost
         })
