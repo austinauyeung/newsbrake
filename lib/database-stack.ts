@@ -11,25 +11,28 @@ export class DatabaseStack extends Stack {
     public readonly UserPreferencesPut: lambda.Function;
     public readonly UserPreferencesDelete: lambda.Function;
     public readonly FeedMetadataGet: lambda.Function;
+    public readonly UserPreferences: dynamodb.Table;
+    public readonly UserInternalInfo: dynamodb.Table;
+    public readonly FeedMetadata: dynamodb.Table;
 
     constructor(scope: cdk.Stage, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
 
         // DynamoDB table storing user preferences and related Lambda functions
-        const UserPreferences = new dynamodb.Table(this, 'UserPreferences', {
+        this.UserPreferences = new dynamodb.Table(this, 'UserPreferences', {
             partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
             billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
             removalPolicy: cdk.RemovalPolicy.DESTROY,
         });
 
-        UserPreferences.addGlobalSecondaryIndex({
+        this.UserPreferences.addGlobalSecondaryIndex({
             indexName: 'GSI',
             partitionKey: {
                 name: 'fetchTime',
                 type: dynamodb.AttributeType.NUMBER,
             },
             sortKey: {
-                name: 'deliveryEnabled',
+                name: 'feedEnabled',
                 type: dynamodb.AttributeType.NUMBER,
             }
         });
@@ -37,9 +40,9 @@ export class DatabaseStack extends Stack {
         this.UserPreferencesPost = new lambda.Function(this, 'UserPreferencesPost', {
             runtime: lambda.Runtime.NODEJS_16_X,
             handler: 'UserPreferencesPost.handler',
-            code: lambda.Code.fromAsset('dist/src'),
+            code: lambda.Code.fromAsset('dist/src/js'),
             environment: {
-                TABLENAME: UserPreferences.tableName,
+                TABLENAME: this.UserPreferences.tableName,
             },
             timeout: cdk.Duration.seconds(10),
         });
@@ -47,9 +50,9 @@ export class DatabaseStack extends Stack {
         this.UserPreferencesGet = new lambda.Function(this, 'UserPreferencesGet', {
             runtime: lambda.Runtime.NODEJS_16_X,
             handler: 'UserPreferencesGet.handler',
-            code: lambda.Code.fromAsset('dist/src'),
+            code: lambda.Code.fromAsset('dist/src/js'),
             environment: {
-                TABLENAME: UserPreferences.tableName,
+                TABLENAME: this.UserPreferences.tableName,
             },
             timeout: cdk.Duration.seconds(10),
         });
@@ -57,9 +60,9 @@ export class DatabaseStack extends Stack {
         this.UserPreferencesPut = new lambda.Function(this, 'UserPreferencesPut', {
             runtime: lambda.Runtime.NODEJS_16_X,
             handler: 'UserPreferencesPut.handler',
-            code: lambda.Code.fromAsset('dist/src'),
+            code: lambda.Code.fromAsset('dist/src/js'),
             environment: {
-                TABLENAME: UserPreferences.tableName,
+                TABLENAME: this.UserPreferences.tableName,
             },
             timeout: cdk.Duration.seconds(10),
         });
@@ -67,20 +70,20 @@ export class DatabaseStack extends Stack {
         this.UserPreferencesDelete = new lambda.Function(this, 'UserPreferencesDelete', {
             runtime: lambda.Runtime.NODEJS_16_X,
             handler: 'UserPreferencesDelete.handler',
-            code: lambda.Code.fromAsset('dist/src'),
+            code: lambda.Code.fromAsset('dist/src/js'),
             environment: {
-                TABLENAME: UserPreferences.tableName,
+                TABLENAME: this.UserPreferences.tableName,
             },
             timeout: cdk.Duration.seconds(10),
         });
 
-        UserPreferences.grantWriteData(this.UserPreferencesPost);
-        UserPreferences.grantReadData(this.UserPreferencesGet);
-        UserPreferences.grantWriteData(this.UserPreferencesPut);
-        UserPreferences.grantWriteData(this.UserPreferencesDelete);
+        this.UserPreferences.grantWriteData(this.UserPreferencesPost);
+        this.UserPreferences.grantReadData(this.UserPreferencesGet);
+        this.UserPreferences.grantWriteData(this.UserPreferencesPut);
+        this.UserPreferences.grantWriteData(this.UserPreferencesDelete);
 
         // DynamoDB table storing user internal info
-        const UserInternalInfo = new dynamodb.Table(this, 'UserInternalInfo', {
+        this.UserInternalInfo = new dynamodb.Table(this, 'UserInternalInfo', {
             partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
             billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
             removalPolicy: cdk.RemovalPolicy.DESTROY,
@@ -89,17 +92,17 @@ export class DatabaseStack extends Stack {
         this.UserInternalInfoPost = new lambda.Function(this, 'UserInternalInfoPost', {
             runtime: lambda.Runtime.NODEJS_16_X,
             handler: 'UserInternalInfoPost.handler',
-            code: lambda.Code.fromAsset('dist/src'),
+            code: lambda.Code.fromAsset('dist/src/js'),
             environment: {
-                TABLENAME: UserInternalInfo.tableName,
+                TABLENAME: this.UserInternalInfo.tableName,
             },
             timeout: cdk.Duration.seconds(10),
         });
 
-        UserInternalInfo.grantWriteData(this.UserInternalInfoPost);
+        this.UserInternalInfo.grantWriteData(this.UserInternalInfoPost);
 
         // DynamoDB table storing feed metadata and related Lambda functions
-        const FeedMetadata = new dynamodb.Table(this, 'FeedMetadata', {
+        this.FeedMetadata = new dynamodb.Table(this, 'FeedMetadata', {
             partitionKey: { name: 'feedName', type: dynamodb.AttributeType.STRING },
             billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
             removalPolicy: cdk.RemovalPolicy.DESTROY,
@@ -108,9 +111,9 @@ export class DatabaseStack extends Stack {
         this.FeedMetadataGet = new lambda.Function(this, 'FeedMetadataGet', {
             runtime: lambda.Runtime.NODEJS_16_X,
             handler: 'FeedMetadataGet.handler',
-            code: lambda.Code.fromAsset('dist/src'),
+            code: lambda.Code.fromAsset('dist/src/js'),
             environment: {
-                TABLENAME: FeedMetadata.tableName,
+                TABLENAME: this.FeedMetadata.tableName,
             },
             timeout: cdk.Duration.seconds(10),
         })
@@ -118,14 +121,14 @@ export class DatabaseStack extends Stack {
         const FeedMetadataPost = new triggers.TriggerFunction(this, 'FeedMetadataPost', {
             runtime: lambda.Runtime.NODEJS_16_X,
             handler: 'FeedMetadataPost.handler',
-            code: lambda.Code.fromAsset('dist/src'),
+            code: lambda.Code.fromAsset('dist/src/js'),
             environment: {
-                TABLENAME: FeedMetadata.tableName,
+                TABLENAME: this.FeedMetadata.tableName,
             },
             timeout: cdk.Duration.seconds(10),
         })
 
-        FeedMetadata.grantReadWriteData(FeedMetadataPost);
-        FeedMetadata.grantReadData(this.FeedMetadataGet)
+        this.FeedMetadata.grantReadWriteData(FeedMetadataPost);
+        this.FeedMetadata.grantReadData(this.FeedMetadataGet)
     }
 }

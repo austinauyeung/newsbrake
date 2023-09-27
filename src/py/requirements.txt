@@ -1,0 +1,6 @@
+requests==2.31.0
+boto3==1.28.53
+pytz==2023.3.post1
+ebooklib==0.18
+feedparser==6.0.8
+beautifulsoup4==4.12.2

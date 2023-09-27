@@ -9,7 +9,12 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "deploy": "pnpm run build && copy src\\package.json dist\\src\\ && pnpm install --prefix dist\\src\\ --prod && cdk deploy && powershell -File .\\react-config.ps1"
+    "build2": "pnpm run build:ts && pnpm run build:py",
+    "build:ts": "tsc",
+    "build:py": "cd .\\src\\py && copy *.py ..\\..\\dist\\src\\py /y",
+    "build:py2": "powershell .\\build.ps1",
+    "deploy": "pnpm run build2 && cdk deploy 'NewsbrakeDev/**' && powershell .\\react-config.ps1",
+    "destroy": "cdk destroy 'NewsbrakeDev/**'"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.119",

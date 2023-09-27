@@ -33,7 +33,7 @@ export class ApigwStack extends Stack {
             },
             deployOptions: {
                 methodOptions: {
-                    '*/*': {
+                    '/*/*': {
                         throttlingBurstLimit: 1500,
                         throttlingRateLimit: 1000
                     }

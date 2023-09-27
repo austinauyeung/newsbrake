@@ -17,7 +17,7 @@ export class AuthStack extends Stack {
         const PostConfirmation = new lambda.Function(this, 'PostConfirmation', {
             runtime: lambda.Runtime.NODEJS_16_X,
             handler: 'PostConfirmation.handler',
-            code: lambda.Code.fromAsset('dist/src'),
+            code: lambda.Code.fromAsset('dist/src/js'),
             environment: {
                 USERINTERNALINFO: props.UserInternalInfoPost.functionName,
                 USERPREFERENCES: props.UserPreferencesPost.functionName
