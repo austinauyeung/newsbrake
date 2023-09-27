@@ -70,7 +70,7 @@ export default function Home() {
                             !preferences.feedEnabled ? <p>To view your preferences, please enable your feed in settings.</p>
                                 :
                                 <Form onSubmit={(event) => putData(event, tempPreferences, setPreferences, setIsLoading)}>
-                                    <Accordion alwaysOpen>
+                                    <Accordion>
                                         {Object.entries(categories).map(([category, feeds], index) => (
                                             <Accordion.Item key={category} eventKey={index.toString()}>
                                                 <Accordion.Header>{category}</Accordion.Header>
@@ -79,8 +79,7 @@ export default function Home() {
                                                         const { feedName } = feed;
                                                         return (
                                                             <div key={feedName} className="AccordionFeed">
-                                                                {feed?.logo ? <a href={feed.url} target="_blank" rel="noopener noreferrer"><img src={feed.logo} className={
-                                                                    `${feedName === 'KFF Health News' ? 'logo1' : 'logo2'}`} /></a>
+                                                                {feed?.logo ? <a href={feed.url} target="_blank" rel="noopener noreferrer"><img src={feed.logo} className={feedName.replace(/[^a-zA-Z0-9]+/g, '-').replace(/-{2,}/g, '-')} /></a>
                                                                     : feedName}
                                                                 {Object.keys(feed.subfeeds).map(subfeed => (
                                                                     <Form.Check

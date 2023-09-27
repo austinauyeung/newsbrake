@@ -50,13 +50,38 @@
 .AccordionFeed {
 
     /* temporary */
-    .logo1 {
-        height: 30px;
+    .KFF-Health-News {
+        height: 2rem;
         margin-bottom: 0.5rem;
     }
 
-    .logo2 {
-        height: 50px;
+    .The-Conversation {
+        height: 4rem;
+    }
+
+    .Global-Voices {
+        height: 3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .Common-Dreams {
+        height: 5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .The-Journalist-s-Resource {
+        height: 3.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .Reveal {
+        height: 5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .ProPublica {
+        height: 2.5rem;
+        margin-bottom: 0.5rem;
     }
 }
 
