@@ -64,6 +64,12 @@ def process_entry_content(html_content):
         figure.decompose()
     for img in soup.find_all('img'):
         img.decompose()
+    for div in soup.find_all('div', {"class": "sharing"}):
+        div.decompose()
+    for p in soup.find_all('p', {"class": "byline"}):
+        p.decompose()
+    for p in soup.find_all('p', {"class": "wp-caption-text"}):
+        p.decompose()
     for element in soup.find_all(True, {"class": True}):
         del element['class']
     return str(soup)
@@ -126,11 +132,9 @@ def create_epub(feeds, id):
 
             authors = ''
             for author in entry.authors:
-                try:
-                    name, affiliation = author.name.split(', ', 1)
-                    authors += f'<p><strong>{name}</strong>, {affiliation}</p>'
-                except:
-                    authors += f'<p><strong>{name}</strong></p>'
+                if 'name' in author:
+                    name = [item.strip() for item in author.name.split(',', 1)]
+                    authors += f'<p><strong>{name[0]}</strong>, {name[1]}</p>' if len(name) > 1 else f'<p><strong>{name[0]}</strong></p>'
 
             subchapter.content = f'<h1>{subchapter_title}</h1>{authors}<div>{processed_content}</div>'
             book.add_item(subchapter)
@@ -155,7 +159,7 @@ def create_epub(feeds, id):
 
     if not os.path.exists(os.path.join(os.getcwd(), id)):
         os.makedirs(os.path.join(os.getcwd(), id), exist_ok=True)
-    epub.write_epub(f'/tmp/{id}/newsbrake-{current_time.strftime('%Y%m%d')}.epub', book)
+    epub.write_epub(f"/tmp/{id}/newsbrake-{current_time.strftime('%Y%m%d')}.epub", book)
 
 def send_epub(feeds, id, email, fail=False):
     create_epub(feeds, id)

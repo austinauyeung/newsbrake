@@ -20,25 +20,13 @@ exports.handler = async () => {
 
     const items = [
         {
-            feedName: 'Wikipedia',
-            category: 'News',
-            url: 'https://en.wikipedia.org/wiki/Portal:Current_events',
-            logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Wikipedia-logo-textonly.svg/1920px-Wikipedia-logo-textonly.svg.png',
-            subfeeds: {
-                'Current Events': 'https://en.wikipedia.org/wiki/Portal:Current_events'
-            },
-        },
-        {
             feedName: 'The Conversation',
             category: 'News',
             url: 'https://theconversation.com/',
             logo: 'https://cdn.theconversation.com/static/tc/@theconversation/ui/dist/esm/logos/logo-horizontal-en-df7faf4238d541b16db76bba081fdd73.png',
             subfeeds: {
                 'All Articles - English': 'https://theconversation.com/articles.atom?language=en',
-                'All Articles - Spanish': 'https://theconversation.com/articles.atom?language=es',
-                'All Articles - French': 'https://theconversation.com/articles.atom?language=fr',
-                'All Articles - Indonesian': 'https://theconversation.com/articles.atom?language=id',
-                'All Articles - Portuguese': 'https://theconversation.com/articles.atom?language=pt'
+                'United States - English': 'https://theconversation.com/us/articles.atom',
             },
         },
         {
@@ -48,6 +36,51 @@ exports.handler = async () => {
             logo: 'https://kffhealthnews.org/wp-content/themes/kaiser-healthnews-2017/static/images/kffhealthnews-logo.svg',
             subfeeds: {
                 'Original Content': 'https://kffhealthnews.org/topics/syndicate/feed/aprss'
+            },
+        },
+        {
+            feedName: 'ProPublica',
+            category: 'Investigative',
+            url: 'https://www.propublica.org/',
+            logo: 'https://upload.wikimedia.org/wikipedia/commons/4/4e/ProPublica_text_logo.svg',
+            subfeeds: {
+                'Articles and Investigations': 'https://www.propublica.org/feeds/propublica/main'
+            },
+        },
+        {
+            feedName: "The Journalist's Resource",
+            category: 'News',
+            url: 'https://journalistsresource.org/',
+            logo: 'https://journalistsresource.org/wp-content/uploads/2021/02/logo.svg',
+            subfeeds: {
+                "The Journalist's Resource": 'https://feeds.feedburner.com/journalistsresource'
+            },
+        },
+        {
+            feedName: 'Common Dreams',
+            category: 'News',
+            url: 'https://www.commondreams.org/',
+            logo: 'https://assets.rbl.ms/32373543/origin.png',
+            subfeeds: {
+                'Common Dreams': 'https://www.commondreams.org/feeds/feed.rss'
+            },
+        },
+        {
+            feedName: 'Reveal',
+            category: 'Investigative',
+            url: 'https://revealnews.org/',
+            logo: 'https://i0.wp.com/revealnews.org/wp-content/uploads/2019/04/reveal-logo-black-on-transparent.png?ssl=1',
+            subfeeds: {
+                'Reveal': 'https://revealnews.org/feed/'
+            },
+        },
+        {
+            feedName: 'Global Voices',
+            category: 'News',
+            url: 'https://globalvoices.org/',
+            logo: 'https://globalvoices.org/wp-content/themes/gv-news-child-theme/gv-news-theme-logo-600.png',
+            subfeeds: {
+                'Global Voices': 'https://globalvoices.org/feed/?cat=-28'
             },
         },
     ]
