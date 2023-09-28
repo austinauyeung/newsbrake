@@ -70,6 +70,10 @@ def process_entry_content(html_content):
         p.decompose()
     for p in soup.find_all('p', {"class": "wp-caption-text"}):
         p.decompose()
+    for big in soup.find_all('big'):
+        h1 = soup.new_tag('h1')
+        h1.string = big.string
+        big.replace_with(h1)
     for element in soup.find_all(True, {"class": True}):
         del element['class']
     return str(soup)
@@ -159,7 +163,7 @@ def create_epub(feeds, id):
 
     if not os.path.exists(os.path.join(os.getcwd(), id)):
         os.makedirs(os.path.join(os.getcwd(), id), exist_ok=True)
-    epub.write_epub(f"/tmp/{id}/newsbrake-{current_time.strftime('%Y%m%d')}.epub", book)
+    epub.write_epub(f"/tmp/{id}/newsbrake.epub", book)
 
 def send_epub(feeds, id, email, fail=False):
     create_epub(feeds, id)
@@ -167,9 +171,9 @@ def send_epub(feeds, id, email, fail=False):
     emailer = Emailer()
     emailer.send(
         to=email,
-        subject='test',
-        fromx='confirm@newsbrake.app',
-        body='Testing',
+        subject="Your daily newsbrake",
+        fromx='delivery@newsbrake.app',
+        body='',
         attachments=[f'/tmp/{id}/newsbrake.epub']
     )
 

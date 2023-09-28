@@ -47,7 +47,6 @@ class Emailer(object):
             part = MIMEText(self.body.replace("\\n", "<br />").replace("\n", "<br />"), "html")
             message.attach(part)
             
-        print(self.attachments)
         for attachment in self.attachments:
             part = MIMEApplication(open(attachment, 'rb').read())
             part.add_header('Content-Disposition', 'attachment', filename=attachment.split("/")[-1])

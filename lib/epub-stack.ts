@@ -40,11 +40,11 @@ export class EpubStack extends Stack {
         )
 
         new events.Rule(this, 'SendEpubHourly', {
-            schedule: events.Schedule.rate(cdk.Duration.days(2)),
-            // schedule: events.Schedule.cron({
-            //     minute: '0',
-            //     hour: '0/1'
-            // }),
+            // schedule: events.Schedule.rate(cdk.Duration.days(10)),
+            schedule: events.Schedule.cron({
+                minute: '0',
+                hour: '0/1'
+            }),
             targets: [new targets.LambdaFunction(sendEpub)]
         })
     }
