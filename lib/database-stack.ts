@@ -5,14 +5,12 @@ import * as triggers from 'aws-cdk-lib/triggers';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 
 export class DatabaseStack extends Stack {
-    public readonly UserInternalInfoPost: lambda.Function;
     public readonly UserPreferencesPost: lambda.Function;
     public readonly UserPreferencesGet: lambda.Function;
     public readonly UserPreferencesPut: lambda.Function;
     public readonly UserPreferencesDelete: lambda.Function;
     public readonly FeedMetadataGet: lambda.Function;
     public readonly UserPreferences: dynamodb.Table;
-    public readonly UserInternalInfo: dynamodb.Table;
     public readonly FeedMetadata: dynamodb.Table;
 
     constructor(scope: cdk.Stage, id: string, props?: cdk.StackProps) {
@@ -81,25 +79,6 @@ export class DatabaseStack extends Stack {
         this.UserPreferences.grantReadData(this.UserPreferencesGet);
         this.UserPreferences.grantWriteData(this.UserPreferencesPut);
         this.UserPreferences.grantWriteData(this.UserPreferencesDelete);
-
-        // DynamoDB table storing user internal info
-        this.UserInternalInfo = new dynamodb.Table(this, 'UserInternalInfo', {
-            partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
-            billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-            removalPolicy: cdk.RemovalPolicy.DESTROY,
-        });
-
-        this.UserInternalInfoPost = new lambda.Function(this, 'UserInternalInfoPost', {
-            runtime: lambda.Runtime.NODEJS_16_X,
-            handler: 'UserInternalInfoPost.handler',
-            code: lambda.Code.fromAsset('dist/src/js'),
-            environment: {
-                TABLENAME: this.UserInternalInfo.tableName,
-            },
-            timeout: cdk.Duration.seconds(10),
-        });
-
-        this.UserInternalInfo.grantWriteData(this.UserInternalInfoPost);
 
         // DynamoDB table storing feed metadata and related Lambda functions
         this.FeedMetadata = new dynamodb.Table(this, 'FeedMetadata', {

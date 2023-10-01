@@ -12,7 +12,8 @@ exports.handler = async (event: PostConfirmationTriggerEvent) => {
             fetchTime: 6,
             feedEnabled: 0,
             kindleEmail: "",
-            feeds: {}
+            feeds: {},
+            lastFetched: "2023-09-04T00:00:00.000Z",
         };
 
         const params: DynamoDB.DocumentClient.PutItemInput = {

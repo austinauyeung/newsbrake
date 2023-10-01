@@ -9,32 +9,48 @@ import re
 from collections import defaultdict
 from urllib.parse import urlparse
 import requests
-from decimal import Decimal
 from emailer import Emailer
+import concurrent.futures
 
 # building packages using https://hub.docker.com/r/lambci/lambda/
 
 os.chdir('/tmp')
 dynamodb = boto3.resource('dynamodb')
 TABLE_USERPREFERENCES = os.environ['TABLE_USERPREFERENCES']
-TABLE_USERINTERNALINFO = os.environ['TABLE_USERINTERNALINFO']
 TABLE_FEEDMETADATA = os.environ['TABLE_FEEDMETADATA']
 current_time = datetime.now(pytz.timezone('US/Eastern'))
 current_hour = current_time.hour
+currentFetched = current_time.replace(minute=0, second=0, microsecond=0)
+userPreferences = dynamodb.Table(TABLE_USERPREFERENCES)
 
 headers = {'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36'}
 
-def get_current_users():
-    userPreferences = dynamodb.Table(TABLE_USERPREFERENCES)
-    userPreferencesResponse = userPreferences.query(
-        IndexName='GSI',
-        KeyConditionExpression='fetchTime = :partitionValue AND feedEnabled = :sortValue',
-        ExpressionAttributeValues={
-            ':partitionValue': current_hour,
-            ':sortValue': 1
+def get_current_users(self):
+    users = []
+    last_evaluated_key = None
+    
+    while True:
+        query_args = {
+            'IndexName': 'GSI',
+            'KeyConditionExpression': 'fetchTime = :partitionValue AND feedEnabled = :sortValue',
+            'ExpressionAttributeValues': {
+                ':partitionValue': current_hour,
+                ':sortValue': 1
+            }
         }
-    )
-    return userPreferencesResponse
+        
+        if last_evaluated_key:
+            query_args['ExclusiveStartKey'] = last_evaluated_key
+        
+        response = userPreferences.query(**query_args)
+
+        users.extend(response['Items'])
+        
+        last_evaluated_key = response.get('LastEvaluatedKey')
+        if not last_evaluated_key:
+            break
+            
+    return users
 
 def get_metadata():
     feedMetadata = dynamodb.Table(TABLE_FEEDMETADATA)
@@ -105,48 +121,49 @@ def create_epub(feeds, id):
     current_time_utc = datetime.utcnow()
 
     for feed in feeds:
-        chapter_title = feed.feed.title
+        if len(feed.entries) > 0:
+            chapter_title = feed.feed.title
 
-        # replace non-alphanumeric with single hyphen
-        filename = re.sub(r'[^a-zA-Z0-9]', '-', chapter_title)
-        filename = re.sub(r'-+', '-', filename)
-        filename = filename.strip('-') + '.xhtml'
+            # replace non-alphanumeric with single hyphen
+            filename = re.sub(r'[^a-zA-Z0-9]', '-', chapter_title)
+            filename = re.sub(r'-+', '-', filename)
+            filename = filename.strip('-') + '.xhtml'
 
-        # add feed to main TOC
-        chapter = epub.EpubHtml(title=chapter_title, file_name=filename, lang='en')
-        chapter.content = f'<h1>{chapter_title}</h1>'
-        book.add_item(chapter)
-        spine.append(chapter)
+            # add feed to main TOC
+            chapter = epub.EpubHtml(title=chapter_title, file_name=filename, lang='en')
+            chapter.content = f'<h1>{chapter_title}</h1>'
+            book.add_item(chapter)
+            spine.append(chapter)
 
-        for entry in feed.entries:
-            published_dt = datetime(*entry.published_parsed[:6])
-            if published_dt < current_time_utc - timedelta(hours=24):
-                continue
+            for entry in feed.entries:
+                published_dt = datetime(*entry.published_parsed[:6])
+                if published_dt < current_time_utc - timedelta(hours=24):
+                    continue
 
-            subchapter_title = entry.title
-            processed_content = ''
-            contents = entry.get('content') or entry.get('summary_detail')
-            contents = [contents] if not isinstance(contents, list) else contents
+                subchapter_title = entry.title
+                processed_content = ''
+                contents = entry.get('content') or entry.get('summary_detail')
+                contents = [contents] if not isinstance(contents, list) else contents
 
-            for content in contents:
-                if content.type == 'text/html':
-                    processed_content = process_entry_content(content.value)
-            filename_entry = f"{urlparse(entry.link).path.lstrip('/').rstrip('/')}.xhtml"
-            subchapter = epub.EpubHtml(title=subchapter_title, file_name=filename_entry, lang='en')
+                for content in contents:
+                    if content.type == 'text/html':
+                        processed_content = process_entry_content(content.value)
+                filename_entry = f"{urlparse(entry.link).path.lstrip('/').rstrip('/')}.xhtml"
+                subchapter = epub.EpubHtml(title=subchapter_title, file_name=filename_entry, lang='en')
 
-            authors = ''
-            for author in entry.authors:
-                if 'name' in author:
-                    name = [item.strip() for item in author.name.split(',', 1)]
-                    authors += f'<p><strong>{name[0]}</strong>, {name[1]}</p>' if len(name) > 1 else f'<p><strong>{name[0]}</strong></p>'
+                authors = ''
+                for author in entry.authors:
+                    if 'name' in author:
+                        name = [item.strip() for item in author.name.split(',', 1)]
+                        authors += f'<p><strong>{name[0]}</strong>, {name[1]}</p>' if len(name) > 1 else f'<p><strong>{name[0]}</strong></p>'
 
-            subchapter.content = f'<h1>{subchapter_title}</h1>{authors}<div>{processed_content}</div>'
-            book.add_item(subchapter)
-            spine.append(subchapter)
-            toc[chapter].append(subchapter)
+                subchapter.content = f'<h1>{subchapter_title}</h1>{authors}<div>{processed_content}</div>'
+                book.add_item(subchapter)
+                spine.append(subchapter)
+                toc[chapter].append(subchapter)
 
-            # add subfeed to sub TOC
-            chapter.content += '<p><a href="{}">{}</a></p>'.format(filename_entry, subchapter_title) 
+                # add subfeed to sub TOC
+                chapter.content += '<p><a href="{}">{}</a></p>'.format(filename_entry, subchapter_title) 
 
     cover = epub.EpubHtml(title='End', file_name='end.xhtml', lang='en')
     cover.content = '<h3>(end of file)</h3>'
@@ -165,9 +182,7 @@ def create_epub(feeds, id):
         os.makedirs(os.path.join(os.getcwd(), id), exist_ok=True)
     epub.write_epub(f"/tmp/{id}/newsbrake.epub", book)
 
-def send_epub(feeds, id, email, fail=False):
-    create_epub(feeds, id)
-
+def send_epub(id, email):
     emailer = Emailer()
     emailer.send(
         to=email,
@@ -177,19 +192,28 @@ def send_epub(feeds, id, email, fail=False):
         attachments=[f'/tmp/{id}/newsbrake.epub']
     )
 
+def process_user(userPref, content, unflattened):
+    try:
+        userId = userPref['userId']
+        userEmail = userPref['kindleEmail']
+        urls = get_feed_urls(unflattened, userPref)
+        if len(urls) and datetime.fromisoformat(userPref['lastFetched']) <= currentFetched - timedelta(hours=24):
+            userFeeds = [content[url] for url in urls]
+            create_epub(userFeeds, userId)
+            send_epub(userId, userEmail)
+            userPreferences.update_item(
+                Key={'userId': userId},
+                UpdateExpression='SET lastFetched = :lf',
+                ExpressionAttributeValues={':lf': currentFetched}
+            )
+    except Exception as e:
+        print(e)
+
 def handler(event, context):
 
     users = get_current_users()['Items']
+    content = get_feed_content(unflattened)
     unflattened = get_metadata()
 
-    content = get_feed_content(unflattened)
-    try:
-        for userPref in users:
-            userId = userPref['userId']
-            userEmail = userPref['kindleEmail']
-            urls = get_feed_urls(unflattened, userPref)
-            if len(urls):
-                userFeeds = [content[url] for url in urls]
-                send_epub(userFeeds, userId, userEmail)
-    except Exception as e:
-        print(e)
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        executor.map(process_user, users, [content]*len(users), [unflattened]*len(users))

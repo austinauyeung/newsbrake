@@ -8,7 +8,6 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 
 interface EpubStackProps extends cdk.StackProps {
     UserPreferences: dynamodb.Table;
-    UserInternalInfo: dynamodb.Table;
     FeedMetadata: dynamodb.Table;
 }
 
@@ -22,14 +21,12 @@ export class EpubStack extends Stack {
             code: lambda.Code.fromAsset('dist/src/py'),
             environment: {
                 TABLE_USERPREFERENCES: props.UserPreferences.tableName,
-                TABLE_USERINTERNALINFO: props.UserInternalInfo.tableName,
                 TABLE_FEEDMETADATA: props.FeedMetadata.tableName,
             },
             timeout: cdk.Duration.seconds(600),
         });
 
-        props.UserPreferences.grantReadData(sendEpub);
-        props.UserInternalInfo.grantWriteData(sendEpub);
+        props.UserPreferences.grantReadWriteData(sendEpub);
         props.FeedMetadata.grantReadData(sendEpub);
 
         sendEpub.addToRolePolicy(

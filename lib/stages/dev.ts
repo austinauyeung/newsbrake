@@ -10,7 +10,6 @@ export class DevStage extends cdk.Stage {
 
         const database = new DatabaseStack(this, 'DatabaseStack', {})
         const auth = new AuthStack(this, 'AuthStack', {
-            UserInternalInfoPost: database.UserInternalInfoPost,
             UserPreferencesPost: database.UserPreferencesPost
         })
         new ApigwStack(this, 'ApigwStack', {
@@ -23,7 +22,6 @@ export class DevStage extends cdk.Stage {
         })
         new EpubStack(this, 'EpubStack', {
             UserPreferences: database.UserPreferences,
-            UserInternalInfo: database.UserInternalInfo,
             FeedMetadata: database.FeedMetadata
         })
     }

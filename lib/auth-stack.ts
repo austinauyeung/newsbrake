@@ -4,7 +4,6 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 
 interface AuthStackProps extends cdk.StackProps {
-    UserInternalInfoPost: lambda.IFunction;
     UserPreferencesPost: lambda.IFunction;
 }
 
@@ -13,20 +12,6 @@ export class AuthStack extends Stack {
 
     constructor(scope: cdk.Stage, id: string, props: AuthStackProps) {
         super(scope, id, props);
-
-        const PostConfirmation = new lambda.Function(this, 'PostConfirmation', {
-            runtime: lambda.Runtime.NODEJS_16_X,
-            handler: 'PostConfirmation.handler',
-            code: lambda.Code.fromAsset('dist/src/js'),
-            environment: {
-                USERINTERNALINFO: props.UserInternalInfoPost.functionName,
-                USERPREFERENCES: props.UserPreferencesPost.functionName
-            },
-            timeout: cdk.Duration.seconds(10),
-        });
-
-        props?.UserInternalInfoPost.grantInvoke(PostConfirmation);
-        props?.UserPreferencesPost.grantInvoke(PostConfirmation);
 
         // Cognito User Pool and Client
         this.UserPool = new cognito.UserPool(this, 'UserPool', {
@@ -38,7 +23,7 @@ export class AuthStack extends Stack {
                 email: true,
             },
             lambdaTriggers: {
-                postConfirmation: PostConfirmation,
+                postConfirmation: props.UserPreferencesPost,
             },
             email: cognito.UserPoolEmail.withSES({
                 fromEmail: 'confirm@newsbrake.app',
