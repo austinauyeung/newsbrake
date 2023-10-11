@@ -7,8 +7,8 @@ export default function Footer() {
             <div className="Footer">
                 <Link className="FooterLink" to="/">About</Link>
                 <Link className="FooterLink" to="/">FAQs</Link>
-                <Link className="FooterLink" to="/">Terms</Link>
-                <Link className="FooterLink" to="/">Privacy</Link>
+                <Link className="FooterLink" to="/terms">Terms</Link>
+                <Link className="FooterLink" to="/privacy">Privacy</Link>
             </div>
         </>
     )

@@ -62,7 +62,6 @@ h2 {
 }
 
 p {
-  font-family: 'Libre Baskerville';
   font-size: 1.2rem;
 }
 
@@ -78,4 +77,10 @@ p {
 
 .offcanvas {
   max-width: 200px;
+}
+
+.Terms li,
+.Privacy li,
+p {
+  font-family: 'Libre Baskerville';
 }
